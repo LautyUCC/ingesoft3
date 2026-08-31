@@ -1,0 +1,9 @@
+const pool=require('../config/database');
+async function divisions(){return (await pool.query('SELECT * FROM divisions ORDER BY name')).rows;}
+async function createDivision(name){return (await pool.query('INSERT INTO divisions(name) VALUES($1) ON CONFLICT(name) DO UPDATE SET name=EXCLUDED.name RETURNING *',[name.trim()])).rows[0];}
+async function list(filters={}){return (await pool.query(`SELECT rm.*,p.first_name,p.last_name,t.name team_name,d.name division_name FROM roster_memberships rm JOIN players p ON p.id=rm.player_id JOIN teams t ON t.id=rm.team_id JOIN divisions d ON d.id=rm.division_id WHERE ($1::int IS NULL OR rm.team_id=$1) AND ($2::int IS NULL OR rm.division_id=$2) ORDER BY t.name,d.name,p.last_name`,[filters.team_id||null,filters.division_id||null])).rows;}
+async function add(playerId,teamId,divisionId,season,active=true){return (await pool.query(`INSERT INTO roster_memberships(player_id,team_id,division_id,season,active) VALUES($1,$2,$3,$4,$5) ON CONFLICT(player_id,team_id,division_id,season) DO UPDATE SET active=EXCLUDED.active RETURNING *`,[playerId,teamId,divisionId,season,active])).rows[0];}
+async function toggle(id){return (await pool.query('UPDATE roster_memberships SET active=NOT active WHERE id=$1 RETURNING *',[id])).rows[0];}
+async function remove(id){return (await pool.query('DELETE FROM roster_memberships WHERE id=$1',[id])).rowCount>0;}
+async function populateCoverage(coverageId,teamId,divisionId,season){return (await pool.query(`INSERT INTO coverage_players(coverage_id,player_id,team_id,status,purchase_type,player_payment_status) SELECT $1,player_id,$2,'Sin actividad','none','Pendiente' FROM roster_memberships WHERE team_id=$2 AND division_id=$3 AND season=$4 AND active=true ON CONFLICT(coverage_id,player_id) DO NOTHING`,[coverageId,teamId,divisionId,season])).rowCount;}
+module.exports={divisions,createDivision,list,add,toggle,remove,populateCoverage};
