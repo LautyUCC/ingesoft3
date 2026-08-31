@@ -1,4 +1,4 @@
-# Ingeniería de Software III — Trabajos prácticos
+# Portfolio DevOps — Ingeniería de Software III
 
 Repositorio personal de LautyUCC para construir, de forma incremental, el sistema de entrega de la aplicación del semestre.
 
