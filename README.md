@@ -13,6 +13,8 @@ El primer trabajo práctico configura el proceso con el que los cambios ingresan
 
 La explicación de las decisiones está en [`decisiones.md`](decisiones.md) y el registro de comprobaciones en [`evidencias.md`](evidencias.md).
 
+La protección de `main` fue comprobada intentando un push directo antes de integrar este cambio mediante Pull Request.
+
 ## Convenciones del repositorio
 
 - Rama estable: `main`.
@@ -21,4 +23,3 @@ La explicación de las decisiones está en [`decisiones.md`](decisiones.md) y el
 - Integración: Pull Request hacia `main`.
 - Versión del TP1: `v1.0.0`.
 - Snapshot académico: `tp1`.
-
