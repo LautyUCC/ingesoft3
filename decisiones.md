@@ -64,3 +64,29 @@ El volumen `photomatch_data` persiste `/var/lib/postgresql/data`. `down` conserv
 ### Uso de inteligencia artificial
 
 Se utilizó IA para auditar la consigna, proponer la separación compatible con EJS, preparar Dockerfiles, Compose y documentación, y operar las verificaciones. Se validó con `docker compose config`, once tests, tres servicios saludables, solicitudes HTTP end-to-end y pruebas reales de persistencia usando `down`, `up` y `down -v`. El contenido debe ser comprendido antes de defenderlo.
+
+## TP3 — Planificación y trazabilidad
+
+### Duración del sprint
+
+Sprint 1 dura 14 días, desde el 31 de agosto hasta el 13 de septiembre de 2026. Dos semanas permiten completar una porción verificable del pipeline, recibir devolución y ajustar sin acumular un mes de trabajo. Un sprint más corto generaría demasiado costo de planificación para una persona y uno más largo demoraría el feedback.
+
+### Límite de trabajo en progreso
+
+El límite de `In Progress` es 2: cantidad de personas (una) más una tarea adicional. Permite continuar con una segunda actividad cuando la primera espera una respuesta o revisión, pero evita empezar muchas cosas y no terminar ninguna. Si nunca se alcanza, el límite sería demasiado alto; si bloquea continuamente trabajo razonable, se revisaría con evidencia.
+
+### Diagnóstico de la historia mal escrita
+
+“Como desarrollador quiero crear la tabla usuarios para guardar los datos” es una tarea técnica disfrazada de historia: describe implementación y no valor para un usuario. Se reescribiría como “Como administrador quiero registrar usuarios para que cada integrante acceda de forma segura a las funciones que le corresponden”; crear la tabla sería una tarea hija.
+
+### Problemas encontrados
+
+- GitHub CLI no tenía alcance `project`; se amplió la autorización desde el flujo oficial por dispositivo.
+- El Project creado por CLI era privado y solo tenía vista de tabla. Se hizo público y se creó una vista Board agrupada por Status mediante la API.
+- La versión de `gh` instalada inicialmente no era conocida; se verificó que era 2.98 y soportaba sub-issues nativos.
+- El CLI no permite crear campos Iteration directamente. Se utilizó la API GraphQL para crear Sprint 1 con duración de 14 días y asignar historia y tareas.
+- Se comprobó por API que el workflow “Item closed” está habilitado; al cerrar una tarea debe moverla automáticamente a Done.
+
+### Uso de inteligencia artificial
+
+Se utilizó IA para auditar la consigna, crear y relacionar issues, operar GitHub Projects mediante CLI, REST y GraphQL, redactar la documentación y preparar la trazabilidad. Se verificó consultando el Project público, las relaciones Parent issue/Sub-issues progress, el campo Sprint, el workflow automático y el estado del issue después del merge. Todo debe recorrerse y explicarse durante la defensa.

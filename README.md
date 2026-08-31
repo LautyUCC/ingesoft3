@@ -75,3 +75,7 @@ El stage de pruebas ejecuta once casos. El endpoint `GET /health` sostiene el he
     docker-compose.yml
     docker-compose.registry.yml
     .env.example
+
+## TP3 — Planificación y trazabilidad
+
+La planificación pública de PhotoMatch vive en el [GitHub Project PhotoMatch - Pipeline DevOps 2026](https://github.com/users/LautyUCC/projects/1). Incluye la épica del semestre, una historia de integración continua, sus dos tareas, un bug independiente, Sprint 1 y trazabilidad desde una tarea hasta su Pull Request y commits.
