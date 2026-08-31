@@ -23,3 +23,55 @@ La protección de `main` fue comprobada intentando un push directo antes de inte
 - Integración: Pull Request hacia `main`.
 - Versión del TP1: `v1.0.0`.
 - Snapshot académico: `tp1`.
+
+## TP2 — PhotoMatch contenerizado
+
+PhotoMatch administra coberturas fotográficas deportivas. Usa Node.js 22, Express, vistas EJS y PostgreSQL 16.
+
+Arquitectura:
+
+    Navegador
+       v
+    frontend (Nginx :80) --CSS y proxy--> backend (Express :3000)
+                                                  v
+                                          db (PostgreSQL)
+                                                  v
+                                         photomatch_data
+
+Las vistas se renderizan en el servidor con EJS. Nginx sirve assets estáticos y reenvía solicitudes dinámicas a Express. PostgreSQL solo es accesible dentro de la red de Compose.
+
+### Arranque desde una máquina limpia
+
+Requisitos: Git y Docker con Compose.
+
+    git clone https://github.com/LautyUCC/ingesoft3.git
+    cd ingesoft3
+    cp .env.example .env
+    docker compose up -d --build
+
+En PowerShell, usá `Copy-Item .env.example .env`. Reemplazá las claves de ejemplo y abrí http://localhost:3000. El usuario inicial utiliza `ADMIN_EMAIL` y `ADMIN_PASSWORD` del archivo local.
+
+`docker compose down` conserva la base; `docker compose down -v` elimina también el volumen.
+
+### Usar las imágenes publicadas
+
+    cp .env.example .env
+    docker compose -f docker-compose.registry.yml pull
+    docker compose -f docker-compose.registry.yml up -d
+
+- `ghcr.io/lautyucc/photomatch-backend:v0.1.0`
+- `ghcr.io/lautyucc/photomatch-frontend:v0.1.0`
+
+### Pruebas
+
+    docker build --target test -t photomatch-backend:test ./backend
+
+El stage de pruebas ejecuta once casos. El endpoint `GET /health` sostiene el healthcheck del backend.
+
+### Archivos principales
+
+    backend/       Dockerfile, .dockerignore, app y tests
+    frontend/      Dockerfile, .dockerignore, nginx.conf y CSS
+    docker-compose.yml
+    docker-compose.registry.yml
+    .env.example

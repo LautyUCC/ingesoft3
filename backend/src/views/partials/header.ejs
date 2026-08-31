@@ -1,0 +1,3 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><%= title %> | PhotoMatch</title><link rel="stylesheet" href="/css/styles.css"><link rel="stylesheet" href="/css/players.css"><link rel="stylesheet" href="/css/sales.css"></head><body>
+<% if (user) { %><aside class="sidebar"><a class="brand" href="/"><span>PM</span> PhotoMatch</a><nav><a href="/">Dashboard</a><a href="/clients">Clientes</a><a href="/coverages">Coberturas</a><a href="/rosters">Planteles</a></nav><form action="/logout" method="post"><button class="link-button">Cerrar sesión</button></form></aside><% } %>
+<main class="<%= user ? 'content' : 'login-page' %>">

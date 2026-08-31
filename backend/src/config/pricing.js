@@ -1,0 +1,1 @@
+module.exports={currency:'ARS',products:{none:{label:'No compró',price:0,quantity:0},single:{label:'1 foto',price:4000,quantity:1},pack6:{label:'Pack de 6',price:15000,quantity:6},all:{label:'Todas',price:25000,quantity:'all'}},teamCoveragePrice:120000};

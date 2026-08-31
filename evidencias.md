@@ -58,4 +58,56 @@ Justificación: permite identificar las dos versiones que Git no pudo reconcilia
 
 La Release identifica el estado final del TP1 e incluye notas sobre la protección de `main`, los Pull Requests, el conflicto resuelto y la documentación entregada.
 
+# Evidencias — TP2
+
+## 1. Build, tests y recorrido end-to-end
+
+El stage `test` del backend produjo:
+
+```text
+tests 11
+pass 11
+fail 0
+```
+
+Después de `docker compose up -d --build`, `db`, `backend` y `frontend` alcanzaron estado `healthy`. Las comprobaciones devolvieron:
+
+```text
+GET /health          200 {"status":"ok"}
+GET /login           200
+GET /css/styles.css  200 (4143 bytes)
+```
+
+Esto verifica Nginx, Express, PostgreSQL y el servido de assets.
+
+## 2. Persistencia
+
+Se creó una tabla de evidencia con el valor `conservado`. Después de `down` y `up`, PostgreSQL devolvió nuevamente `conservado`. Luego de `down -v`, `to_regclass` confirmó que la tabla ya no existía. El estado vive en el volumen, no en el contenedor.
+
+## 3. Tamaños
+
+La comparación se obtiene con:
+
+```bash
+docker image ls photomatch-backend:test entrega-tp1-backend entrega-tp1-frontend
+docker history entrega-tp1-backend
+```
+
+En Node no existe un SDK separado. La comparación relevante es el stage de pruebas frente al runtime, que excluye tests, dependencias de desarrollo y caché.
+
+Medición local realizada:
+
+```text
+photomatch-backend:test     256 MB
+entrega-tp1-backend:latest  242 MB
+entrega-tp1-frontend:latest 92.6 MB
+```
+
+## 4. Registry
+
+- `ghcr.io/lautyucc/photomatch-backend:v0.1.0`
+- `ghcr.io/lautyucc/photomatch-frontend:v0.1.0`
+
+La variante `docker-compose.registry.yml` debe bajar esas imágenes y ejecutar el sistema sin construir localmente.
+
 Justificación: demuestra que el estado entregado quedó identificado y es recuperable.
