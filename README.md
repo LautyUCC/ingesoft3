@@ -1,4 +1,4 @@
-# Ingeniería de Software III — Trabajos prácticos
+# Ingeniería de Software III — Entrega personal
 
 Repositorio personal de LautyUCC para construir, de forma incremental, el sistema de entrega de la aplicación del semestre.
 
