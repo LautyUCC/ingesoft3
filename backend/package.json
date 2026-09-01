@@ -10,6 +10,7 @@
   },
   "engines": { "node": ">=20" },
   "dependencies": {
+    "paquete-que-no-existe-tp4": "1.0.0",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.1",
     "ejs": "^3.1.10",
