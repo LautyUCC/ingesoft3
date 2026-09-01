@@ -1,5 +1,7 @@
 # Ingeniería de Software III — Portfolio DevOps
 
+[![CI](https://github.com/LautyUCC/ingesoft3/actions/workflows/ci.yml/badge.svg)](https://github.com/LautyUCC/ingesoft3/actions/workflows/ci.yml)
+
 Repositorio personal de LautyUCC para construir, de forma incremental, el sistema de entrega de la aplicación del semestre.
 
 ## TP1 — Git colaborativo
@@ -79,3 +81,7 @@ El stage de pruebas ejecuta once casos. El endpoint `GET /health` sostiene el he
 ## TP3 — Planificación y trazabilidad
 
 La planificación pública de PhotoMatch vive en el [GitHub Project PhotoMatch - Pipeline DevOps 2026](https://github.com/users/LautyUCC/projects/1). Incluye la épica del semestre, una historia de integración continua, sus dos tareas, un bug independiente, Sprint 1 y trazabilidad desde una tarea hasta su Pull Request y commits.
+
+## TP4 — Integración continua
+
+El workflow `.github/workflows/ci.yml` se ejecuta en cada Pull Request hacia `main` y después de cada push a `main`. Los jobs `build-backend` y `build-frontend` construyen en paralelo las imágenes definidas en TP2, usando Buildx y cache de capas con scopes separados.
