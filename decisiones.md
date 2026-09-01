@@ -90,3 +90,40 @@ El límite de `In Progress` es 2: cantidad de personas (una) más una tarea adic
 ### Uso de inteligencia artificial
 
 Se utilizó IA para auditar la consigna, crear y relacionar issues, operar GitHub Projects mediante CLI, REST y GraphQL, redactar la documentación y preparar la trazabilidad. Se verificó consultando el Project público, las relaciones Parent issue/Sub-issues progress, el campo Sprint, el workflow automático y el estado del issue después del merge. Todo debe recorrerse y explicarse durante la defensa.
+
+## TP4 — CI: Pipelines as Code
+
+### Estructura del pipeline
+
+El workflow tiene dos jobs independientes: `build-backend` y `build-frontend`. Cada imagen posee su propio Dockerfile, contexto y cache, así que no existe una dependencia que obligue a ejecutarlas en secuencia. GitHub asigna un runner limpio a cada job y puede construirlas en paralelo; si cualquiera falla, el pipeline queda rojo.
+
+`pull_request` verifica la combinación con `main` antes del merge y alimenta el gate. `push` sobre `main` genera una corrida posterior y mantiene actualizado el badge.
+
+### Dockerfiles como contrato
+
+El pipeline usa los Dockerfiles del TP2 con `docker/build-push-action`. Existe así una sola definición de build para desarrollo, CI y despliegue futuro. Ejecutar comandos Node o Nginx distintos en el workflow podría dejar CI verde mientras la imagen desplegable estuviera rota.
+
+En TP4 `push: false`: se verifica que las imágenes se construyan en una máquina limpia, sin publicarlas. Los tests se incorporan al pipeline en TP5.
+
+### Cache
+
+Buildx importa y exporta capas con `type=gha`; `mode=max` conserva también capas intermedias. Los scopes `backend` y `frontend` son estantes separados para que el último job no sobrescriba el cache del otro.
+
+En backend se reutilizan la imagen base, la copia del lockfile y `npm ci --omit=dev` mientras no cambien dependencias. Cambiar `package.json` o el lockfile invalida esa capa y las posteriores. En frontend se reutilizan la base Nginx, configuración y assets no modificados.
+
+Si el cache desaparece, el pipeline reconstruye todo y vuelve a poblarlo. El cache mejora rendimiento, pero no es necesario para la corrección.
+
+### Gate
+
+`main` exige Pull Request, aplica la regla al administrador y requiere `build-backend` y `build-frontend` en verde. `strict: true` obliga a verificar la rama contra el estado actual de `main`, evitando integrar un verde calculado sobre una base vieja.
+
+### Problemas encontrados
+
+- El workflow del TP3 solo hacía checkout; se reemplazó por los dos jobs reales.
+- Se definieron scopes separados porque compartir el scope predeterminado haría que los caches se pisaran.
+- Los nuevos checks debían correr al menos una vez antes de configurar el gate.
+- PhotoMatch usa Node interpretado; la demostración rompe una dependencia, porque un error de sintaxis no necesariamente se evalúa durante `docker build`.
+
+### Uso de inteligencia artificial
+
+Se utilizó IA para analizar la consigna, adaptar el workflow, configurar cache y protección de rama, operar la demostración rojo–verde y redactar la defensa. Se verificó con corridas reales, logs con capas reutilizadas, un PR bloqueado por un build fallido, el fix posterior y consultas a la protección de `main`.
