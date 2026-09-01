@@ -85,3 +85,5 @@ La planificación pública de PhotoMatch vive en el [GitHub Project PhotoMatch -
 ## TP4 — Integración continua
 
 El workflow `.github/workflows/ci.yml` se ejecuta en cada Pull Request hacia `main` y después de cada push a `main`. Los jobs `build-backend` y `build-frontend` construyen en paralelo las imágenes definidas en TP2, usando Buildx y cache de capas con scopes separados.
+
+La preparación completa para presentar los cuatro trabajos está en [GUIA-DEFENSA-P1.md](GUIA-DEFENSA-P1.md).
