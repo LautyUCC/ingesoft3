@@ -8,6 +8,7 @@ RUN npm ci
 FROM dependencies AS test
 COPY src ./src
 COPY test ./test
+COPY .c8rc.json ./
 RUN npm test
 
 # Dependencias de producción: excluye supertest y herramientas de desarrollo.
