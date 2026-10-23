@@ -7,8 +7,10 @@ COPY public/ ./
 FROM nginx:1.29-alpine AS runtime
 LABEL org.opencontainers.image.source="https://github.com/LautyUCC/ingesoft3"
 LABEL org.opencontainers.image.description="Frontend Nginx de PhotoMatch"
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=assets /assets/ /usr/share/nginx/html/
+ENV BACKEND_URL=http://backend:3000 \
+    DNS_RESOLVER=127.0.0.11
 EXPOSE 80
 HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
   CMD wget -qO- http://127.0.0.1/health || exit 1

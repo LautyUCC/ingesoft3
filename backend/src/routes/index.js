@@ -1,5 +1,21 @@
-const router=require('express').Router(); const auth=require('../controllers/authController'); const dashboard=require('../controllers/dashboardController'); const client=require('../controllers/clientController'); const coverage=require('../controllers/coverageController'); const player=require('../controllers/playerController'); const roster=require('../controllers/rosterController'); const sales=require('../controllers/salesController'); const {requireAuth}=require('../middleware/auth');
-router.get('/health',(req,res)=>res.status(200).json({status:'ok'}));
+const router=require('express').Router(); const pool=require('../config/database'); const auth=require('../controllers/authController'); const dashboard=require('../controllers/dashboardController'); const client=require('../controllers/clientController'); const coverage=require('../controllers/coverageController'); const player=require('../controllers/playerController'); const roster=require('../controllers/rosterController'); const sales=require('../controllers/salesController'); const {requireAuth}=require('../middleware/auth');
+router.get('/health', async (req,res)=>{
+  try {
+    await pool.query('SELECT 1');
+    res.status(200).json({
+      status: 'ok',
+      version: process.env.APP_VERSION || '1.0.0',
+      commit: process.env.COMMIT_SHA || 'unknown',
+      database: 'connected'
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'error',
+      message: 'Base de datos no disponible',
+      error: err.message
+    });
+  }
+});
 router.get('/login',auth.showLogin); router.post('/login',auth.login); router.post('/logout',auth.logout);
 router.use(requireAuth); router.get('/',dashboard.show);
 router.get('/clients',client.list); router.get('/clients/new',client.newForm); router.post('/clients',client.create); router.get('/clients/:id/edit',client.editForm); router.put('/clients/:id',client.update); router.delete('/clients/:id',client.remove);
