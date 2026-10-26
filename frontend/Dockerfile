@@ -4,8 +4,14 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY src ./src
+COPY test ./test
+COPY .c8rc.json ./.c8rc.json
 COPY public ./public
 RUN npm run build
+
+# La misma receta del Dockerfile verifica la lógica de telemetría antes de publicar.
+FROM assets AS test
+ENTRYPOINT ["npm", "run", "test:check-coverage"]
 
 # Nginx sirve CSS y actúa como entrada única hacia el backend Express.
 FROM nginx:1.29-alpine AS runtime
