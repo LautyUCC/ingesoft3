@@ -21,6 +21,8 @@ Playwright `request` mantiene cookies de sesión y hace HTTP sin browser. Playwr
 ## 7. Tests y evidencia real
 Con PostgreSQL y Nginx locales: integración 3/3 y E2E 3/3, cero saltados. El navegador detectó un 500 real en `/clients/new`; tras corregirlo, todas pasaron. En un proyecto Docker aislado se cambió deliberadamente la ruta POST del formulario HTML, dejando la API intacta: integración 3/3 verde y E2E 3/3 roja. Los commits de rotura y reversión están preparados en worktrees separados; el proyecto y volumen de prueba se eliminaron. **Faltan** corridas sobre QA desplegado por `main`, gate E2E rojo en GitHub, fix integrado, promoción a PROD y `v7.0.0`.
 
+En la [CI 40277582164](https://github.com/LautyUCC/ingesoft3/actions/runs/40277582164), QA desplegó el SHA `dde81a8` y la suite de integración pasó 3/3 contra PostgreSQL real. El post-paso de caché npm del runner propio demoró el inicio de E2E; falta confirmar la suite en esa corrida y producir la evidencia roja del gate en GitHub.
+
 ## 8. Problemas y solución
 EJS interpretó el local `client` como opción de compilación y `include` dejó de ser función. Se renombró el local del formulario a `customer`. Se repitieron las tres E2E para confirmar el arreglo.
 
