@@ -19,7 +19,7 @@ Se agregó una API pequeña para clientes porque la consigna pide el fixture `re
 Playwright `request` mantiene cookies de sesión y hace HTTP sin browser. Playwright Chromium ejerce UI, conserva screenshot/trace al fallar y genera HTML. `upload-artifact` guarda reportes; `needs` bloquea promoción si falla integración o E2E.
 
 ## 7. Tests y evidencia real
-Con PostgreSQL y Nginx locales: integración 3/3 y E2E 3/3, cero saltados. El navegador detectó un 500 real en `/clients/new`; tras corregirlo, todas pasaron. **Faltan** corridas sobre QA desplegado por `main`, rojo E2E provocado por un cambio de aplicación, fix, gate de PROD y `v7.0.0`.
+Con PostgreSQL y Nginx locales: integración 3/3 y E2E 3/3, cero saltados. El navegador detectó un 500 real en `/clients/new`; tras corregirlo, todas pasaron. En un proyecto Docker aislado se cambió deliberadamente la ruta POST del formulario HTML, dejando la API intacta: integración 3/3 verde y E2E 3/3 roja. Los commits de rotura y reversión están preparados en worktrees separados; el proyecto y volumen de prueba se eliminaron. **Faltan** corridas sobre QA desplegado por `main`, gate E2E rojo en GitHub, fix integrado, promoción a PROD y `v7.0.0`.
 
 ## 8. Problemas y solución
 EJS interpretó el local `client` como opción de compilación y `include` dejó de ser función. Se renombró el local del formulario a `customer`. Se repitieron las tres E2E para confirmar el arreglo.

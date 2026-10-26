@@ -26,5 +26,7 @@ printf '{"auths":{}}\n' > "$docker_config_dir/config.json"
 export DOCKER_CONFIG="$docker_config_dir"
 
 echo "Desplegando $DEPLOY_ENV desde $BACKEND_IMAGE y $FRONTEND_IMAGE"
-docker-compose -p "photomatch-$DEPLOY_ENV" -f deploy/compose.yml pull
-docker-compose -p "photomatch-$DEPLOY_ENV" -f deploy/compose.yml up -d --wait --no-build
+docker --config "$docker_config_dir" pull "$BACKEND_IMAGE"
+docker --config "$docker_config_dir" pull "$FRONTEND_IMAGE"
+docker --config "$docker_config_dir" pull postgres:16-alpine
+docker-compose -p "photomatch-$DEPLOY_ENV" -f deploy/compose.yml up -d --wait --no-build --pull never
