@@ -1,8 +1,14 @@
 server {
-    listen 80;
+    listen ${PORT};
     server_name _;
 
     location /css/ {
+        root /usr/share/nginx/html;
+        try_files $uri @backend;
+        expires 1h;
+    }
+
+    location /js/ {
         root /usr/share/nginx/html;
         try_files $uri @backend;
         expires 1h;

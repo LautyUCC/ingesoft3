@@ -1,0 +1,53 @@
+services:
+  frontend:
+    image: ${FRONTEND_IMAGE:?Falta imagen de frontend}
+    ports:
+      - "${APP_PORT:?Falta puerto}:80"
+    environment:
+      BACKEND_URL: http://backend:3000
+      DNS_RESOLVER: 127.0.0.11
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backend:
+    image: ${BACKEND_IMAGE:?Falta imagen de backend}
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://photomatch:${POSTGRES_PASSWORD:?Falta clave DB}@db:5432/photomatch
+      DB_SSL_MODE: disable
+      SESSION_SECRET: ${SESSION_SECRET:?Falta secreto de sesión}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Falta email admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Falta clave admin}
+      DEPLOY_ENV: ${DEPLOY_ENV:-local}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_BROWSER_DSN: ${SENTRY_BROWSER_DSN:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: photomatch
+      POSTGRES_USER: photomatch
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Falta clave DB}
+    volumes:
+      - data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U photomatch -d photomatch"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  data:

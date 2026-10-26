@@ -1,4 +1,6 @@
 # Plan de Trabajo P2 — PhotoMatch (TP5 a TP9)
+
+> **Actualización 26/10/2026:** se eligió el fallback local permitido en TP6–TP8 porque no hay cuentas Neon/Render. La implementación verificable está en el PR #18; el estado y los faltantes actuales están en `ESTADO-P2.md`. Las tablas siguientes conservan la planificación original y sus rutas Render/Neon como referencia histórica. Orden de cierre restante: (1) integrar PR con autorización y comprobar GHCR + QA; (2) demostrar rechazo, aprobación y rollback reales de PROD; (3) demostrar E2E roja por fallo de app, fix y promoción; (4) repetir Terraform con imágenes GHCR; (5) configurar Sentry/monitor y cerrar evidencias de TP9; (6) crear cada release sólo cuando su TP cumpla la consigna.
 **Ingeniería de Software III — Universidad Católica de Córdoba (UCC) — Ciclo 2026**  
 **Alumno:** Lautaro Alejo Vallino (Legajo: 2301009) — Comisión 2  
 **Fecha límite de entrega:** Lunes 26 de octubre de 2026 a las 23:59  

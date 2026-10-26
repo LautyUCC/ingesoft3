@@ -20,6 +20,8 @@ RUN npm ci --omit=dev && npm cache clean --force
 # Imagen final: solo runtime, dependencias productivas y código ejecutable.
 FROM node:22-alpine AS runtime
 ENV NODE_ENV=production
+ARG COMMIT_SHA=unknown
+ENV COMMIT_SHA=$COMMIT_SHA
 WORKDIR /app
 LABEL org.opencontainers.image.source="https://github.com/LautyUCC/ingesoft3"
 LABEL org.opencontainers.image.description="Backend Node.js de PhotoMatch"
