@@ -154,7 +154,7 @@ exit 1
 | **Fallback Local Plan C con Self-Hosted Runner** | Despliegue en Render / Neon gratuitos | Los planes gratuitos de Render suspenden servicios tras inactividad (*cold starts* de 50 s) y Neon limita conexiones poolers. El runner local garantiza disponibilidad inmediata para la mesa de examen y ejecución determinista. | Exige mantener la máquina de desarrollo encendida durante la evaluación. |
 | **Separación de Build y Publish con Artefactos `.tar`** | Construir y publicar directamente en el job de build | El principio de calidad exige que nada se publique en el registro hasta que la totalidad de las pruebas unitarias y umbrales de cobertura hayan sido superados. | Consume tiempo de transferencia de artefactos en GitHub (~20 s). |
 | **Aprobación Manual con GitHub Environments** | Despliegue continuo directo a producción | Exigencia pedagógica de Continuous Delivery: el pase a producción es un acto de negocio supervisado. | Introduce latencia humana entre la validación técnica y la disponibilidad final. |
-| **Estrategia de Rollback por redespliegue del tag anterior** | Blue/Green Deployment con balanceador de carga activo | Blue/Green duplica recursos. El retorno real a un SHA anterior se comprobó, pero **no** se cronometró el ciclo completo hasta `/health` y DB sana. | `recreate` implica una ventana de indisponibilidad; su duración total sigue pendiente de medir. |
+| **Estrategia de Rollback por redespliegue del tag anterior** | Blue/Green Deployment con balanceador de carga activo | Blue/Green duplica recursos. El retorno completo al SHA anterior se midió en **25,306 s** hasta `/health` y DB sana. | `recreate` implica una ventana de indisponibilidad; el tiempo observado con imágenes cacheadas no garantiza futuras recuperaciones. |
 
 ---
 
@@ -170,9 +170,8 @@ exit 1
    - **Actor:** `LautyUCC`
    - **Resultado:** Aprobado. Job `deploy-prod` ejecutó el despliegue del commit `1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3` y smoke test pasó 100%.
 3. **Medición Real del Tiempo de Rollback:**
-   - En Producción se ejecutó la reversión controlada de `99f83ef` al SHA anterior `dde81a8`.
-   - **7,42 segundos** miden solo desde la creación del backend anterior hasta el inicio del frontend anterior: no incluyen el `pull` ni la verificación de `/health`/PostgreSQL. **No son el tiempo total del rollback PROD.**
-   - En QA sí se midió un ciclo completo con verificación de `/health`: **20,16 segundos**; no sustituye la medición de PROD, que sigue pendiente.
+   - Con autorización se ejecutó el rollback PROD `1caea7c→99f83ef`: **25,306 segundos** desde antes del `pull` hasta `/health` con SHA anterior y PostgreSQL conectado. La restauración `99f83ef→1caea7c` tomó **25,278 segundos**; se conservó el mismo contenedor DB. [Rastro UTC](evidencias/rollback-prod-2026-10-26.log).
+   - La cifra histórica de **7,42 segundos** solo cubría parte de una recreación anterior; no es la duración total. En QA se midió otro ciclo completo de **20,16 segundos**. Las imágenes ya estaban cacheadas durante la nueva medición PROD, por lo que estos tiempos son observados, no un SLA.
 4. **Release Oficial:**
    - Etiqueta Git y [Release v6.0.0](https://github.com/LautyUCC/ingesoft3/releases/tag/v6.0.0) publicada en GitHub.
 
@@ -201,7 +200,7 @@ exit 1
    *Respuesta:* Corre con `launchd` para estar disponible permanentemente sin depender de una terminal abierta. El problema fue que no tenía acceso al llavero de sesión de macOS para almacenar credenciales Docker, lo que resolvimos forzando configuración anónima para paquetes públicos y precargando la imagen de PostgreSQL.
 
 7. **¿Cómo midieron el tiempo de rollback?**  
-   *Respuesta:* En QA medimos 20,16 s desde el inicio del despliegue hasta `/health` con DB y SHA anterior. En PROD comprobamos el retorno real, pero solo tenemos 7,42 s de recreación parcial; falta medir con un único reloj desde el inicio del `pull` hasta `/health` con DB y SHA anterior. No atribuyo esos 7,42 s al rollback completo.
+   *Respuesta:* En PROD medimos con un mismo reloj 25,306 s desde antes del pull hasta `/health` con DB conectada y SHA anterior; la restauración tomó 25,278 s. El contenedor PostgreSQL se conservó. Los 7,42 s históricos medían solo recreación parcial; el rastro nuevo está en `docs/defensa/evidencias/rollback-prod-2026-10-26.log`.
 
 8. **¿Dónde se evidencia en su repositorio que un gate de producción fue rechazado?**  
    *Respuesta:* En la corrida de GitHub Actions #40277582164, accesible en la pestaña Actions y auditable vía GitHub API en `/actions/runs/40277582164/approvals`.
@@ -228,7 +227,7 @@ exit 1
 - **Smoke Testing:** Verificación activa post-despliegue de salud y versión.
 
 ### Pitch Oral de 2 Minutos
-> *"En TP6 construimos las imágenes una sola vez y publicamos por SHA después de ambos gates de build. GitHub Actions despliega QA automáticamente en Docker local y PROD solo tras aprobación humana. La corrida 40277582164 conserva un rechazo con motivo y la 40284305415 una aprobación con smoke verde. Volvimos de verdad PROD a un SHA anterior conservando PostgreSQL; los 7,42 s documentados son solo recreación parcial y aún falta medir la recuperación completa hasta `/health` con SHA y DB sana."*
+> *"En TP6 construimos las imágenes una sola vez y publicamos por SHA después de ambos gates de build. GitHub Actions despliega QA automáticamente en Docker local y PROD solo tras aprobación humana. La corrida 40277582164 conserva un rechazo con motivo y la 40284305415 una aprobación con smoke verde. Medimos un rollback real de PROD al SHA anterior en 25,306 s hasta `/health` con DB conectada y restauramos el SHA aprobado en 25,278 s, conservando PostgreSQL."*
 
 ### Checklist para la Demostración en Vivo
 - [ ] Mostrar en GitHub Actions la separación de jobs: `build`, `publish`, `deploy-qa` y `deploy-prod`.

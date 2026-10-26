@@ -1,0 +1,65 @@
+initial_sha=1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3 previous_sha=99f83ef971b9189180e2bfcadf7f30a921b976ee db_container_id=1d1ba7c794f2967058830827942f66be54108e13923d685948b6c8332276db1c
+rollback start_utc=2026-10-26T15:44:14.070355+00:00 target=99f83ef971b9189180e2bfcadf7f30a921b976ee
+Desplegando prod desde ghcr.io/lautyucc/photomatch-backend:sha-99f83ef971b9189180e2bfcadf7f30a921b976ee y ghcr.io/lautyucc/photomatch-frontend:sha-99f83ef971b9189180e2bfcadf7f30a921b976ee
+sha-99f83ef971b9189180e2bfcadf7f30a921b976ee: Pulling from lautyucc/photomatch-backend
+Digest: sha256:6f45d40d4504a8ca1889ccb89b449566f52d18ead80b0cbc3c41515960f22c86
+Status: Image is up to date for ghcr.io/lautyucc/photomatch-backend:sha-99f83ef971b9189180e2bfcadf7f30a921b976ee
+ghcr.io/lautyucc/photomatch-backend:sha-99f83ef971b9189180e2bfcadf7f30a921b976ee
+sha-99f83ef971b9189180e2bfcadf7f30a921b976ee: Pulling from lautyucc/photomatch-frontend
+Digest: sha256:5c638f90f656b095289f0464d9719212b9bf8c676ff8d3522c72b191282044b0
+Status: Image is up to date for ghcr.io/lautyucc/photomatch-frontend:sha-99f83ef971b9189180e2bfcadf7f30a921b976ee
+ghcr.io/lautyucc/photomatch-frontend:sha-99f83ef971b9189180e2bfcadf7f30a921b976ee
+ Container photomatch-prod-db-1 Running
+ Container photomatch-prod-backend-1 Recreate
+ backend The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+ Container photomatch-prod-backend-1 Recreated
+ Container photomatch-prod-frontend-1 Recreate
+ frontend The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+ Container photomatch-prod-frontend-1 Recreated
+ Container photomatch-prod-db-1 Waiting
+ Container photomatch-prod-db-1 Healthy
+ Container photomatch-prod-backend-1 Starting
+ Container photomatch-prod-backend-1 Started
+ Container photomatch-prod-backend-1 Waiting
+ Container photomatch-prod-backend-1 Healthy
+ Container photomatch-prod-frontend-1 Starting
+ Container photomatch-prod-frontend-1 Started
+ Container photomatch-prod-db-1 Waiting
+ Container photomatch-prod-frontend-1 Waiting
+ Container photomatch-prod-backend-1 Waiting
+ Container photomatch-prod-backend-1 Healthy
+ Container photomatch-prod-db-1 Healthy
+ Container photomatch-prod-frontend-1 Healthy
+rollback end_utc=2026-10-26T15:44:39.377021+00:00 elapsed_seconds=25.306 health={"commit": "99f83ef971b9189180e2bfcadf7f30a921b976ee", "database": "connected", "status": "ok", "version": "1.0.0"} db_container_preserved=True
+restore start_utc=2026-10-26T15:44:39.404682+00:00 target=1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3
+Desplegando prod desde ghcr.io/lautyucc/photomatch-backend:sha-1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3 y ghcr.io/lautyucc/photomatch-frontend:sha-1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3
+sha-1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3: Pulling from lautyucc/photomatch-backend
+Digest: sha256:48b565a29549f6cca884fe422e62343e0584bfb919418930df7cd6113625d552
+Status: Image is up to date for ghcr.io/lautyucc/photomatch-backend:sha-1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3
+ghcr.io/lautyucc/photomatch-backend:sha-1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3
+sha-1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3: Pulling from lautyucc/photomatch-frontend
+Digest: sha256:5c638f90f656b095289f0464d9719212b9bf8c676ff8d3522c72b191282044b0
+Status: Image is up to date for ghcr.io/lautyucc/photomatch-frontend:sha-1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3
+ghcr.io/lautyucc/photomatch-frontend:sha-1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3
+ Container photomatch-prod-db-1 Running
+ Container photomatch-prod-backend-1 Recreate
+ backend The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+ Container photomatch-prod-backend-1 Recreated
+ Container photomatch-prod-frontend-1 Recreate
+ frontend The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+ Container photomatch-prod-frontend-1 Recreated
+ Container photomatch-prod-db-1 Waiting
+ Container photomatch-prod-db-1 Healthy
+ Container photomatch-prod-backend-1 Starting
+ Container photomatch-prod-backend-1 Started
+ Container photomatch-prod-backend-1 Waiting
+ Container photomatch-prod-backend-1 Healthy
+ Container photomatch-prod-frontend-1 Starting
+ Container photomatch-prod-frontend-1 Started
+ Container photomatch-prod-backend-1 Waiting
+ Container photomatch-prod-db-1 Waiting
+ Container photomatch-prod-frontend-1 Waiting
+ Container photomatch-prod-backend-1 Healthy
+ Container photomatch-prod-db-1 Healthy
+ Container photomatch-prod-frontend-1 Healthy
+restore end_utc=2026-10-26T15:45:04.682814+00:00 elapsed_seconds=25.278 health={"commit": "1caea7ce1e19d4b2b84676ec8a35686f6e26f2e3", "database": "connected", "status": "ok", "version": "1.0.0"} db_container_preserved=True
