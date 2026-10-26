@@ -1,5 +1,7 @@
 # Plan de Trabajo P2 — PhotoMatch (TP5 a TP9)
 
+> **Actualización 26/10/2026, tras PR #35 (prevalece sobre las notas siguientes).** QA ya se desplegó desde `main` y el smoke verificó SHA/DB; integración pasó sus tres pruebas. El job quedó demorando en la subida de la caché npm de 687 MB del runner propio, por lo que E2E espera. El siguiente ajuste elimina esa caché de integración y E2E. El rollback de QA local se midió y restauró; falta evidencia de rechazo/aprobación del gate PROD y autorización separada antes de desplegarlo.
+
 > **Actualización 26/10/2026, tras PR #34 (prevalece sobre las notas siguientes).** La CI de `main` descargó ambos tags GHCR pero QA se detuvo al intentar consultar el llavero para PostgreSQL de Docker Hub. El runner ya tiene `postgres:16-alpine` local; el script ahora lo verifica sin descargarlo. El script completo levantó QA desde launchd y `/health` confirmó SHA y DB. Falta integrar y verificar esta corrección en GitHub Actions; PROD sigue sujeta a autorización separada.
 
 > **Actualización 26/10/2026, tras PR #33 (prevalece sobre la nota siguiente).** La CI de `main` publicó el SHA `ad48d6e`, pero QA falló al usar `docker-compose pull` por el llavero de macOS. La siguiente corrección usa `docker pull` con configuración anónima explícita y `docker-compose up --pull never`, probado en launchd. Después se repetirá QA, integración y E2E; PROD requerirá autorización separada. Ya se comprobó localmente la rotura controlada de TP7: integración 3/3 verde, E2E 3/3 roja. Falta trasladar esa demostración al gate de GitHub.
