@@ -19,7 +19,7 @@ El fallback local evita cuentas de nube y permite una demostración reproducible
 GitHub Actions ordena jobs con `needs`; GHCR almacena imágenes; GitHub Environments controla secretos y revisión; Docker Compose separa red y volumen por proyecto; Nginx enruta a Express; PostgreSQL persiste; ShellCheck y actionlint validan scripts y workflow.
 
 ## 7. Tests y evidencia real
-Localmente: 32 unitarios, 100% de líneas y 70,58% de ramas; builds de ambas imágenes; Compose con `/health` y `SELECT 1`; `actionlint` y ShellCheck. [PR #18](https://github.com/LautyUCC/ingesoft3/pull/18) sigue abierto. **Faltan** corrida de `main` publicando paquetes públicos, QA/PROD desde el runner, rechazo y aprobación, rollback medido y `v6.0.0`.
+Localmente: 33 unitarios, 100% de líneas y 72,36% de ramas; builds de ambas imágenes; Compose con `/health` y `SELECT 1`; `actionlint` y ShellCheck. [PR #18](https://github.com/LautyUCC/ingesoft3/pull/18) sigue abierto. **Faltan** corrida de `main` publicando paquetes públicos, QA/PROD desde el runner, rechazo y aprobación, rollback medido y `v6.0.0`.
 
 ## 8. Problemas y solución
 La publicación paralela violaba el gate global. Se separó verificación de publicación y se transportan los artefactos. El certificado PostgreSQL se validaba con `rejectUnauthorized:false`; ahora se verifica. El secret de sesión de ejemplo podía usarse en producción; ahora el arranque lo rechaza.

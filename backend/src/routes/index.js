@@ -1,5 +1,6 @@
-const router=require('express').Router(); const pool=require('../config/database'); const auth=require('../controllers/authController'); const dashboard=require('../controllers/dashboardController'); const client=require('../controllers/clientController'); const apiClient=require('../controllers/apiClientController'); const coverage=require('../controllers/coverageController'); const player=require('../controllers/playerController'); const roster=require('../controllers/rosterController'); const sales=require('../controllers/salesController'); const {requireAuth}=require('../middleware/auth');
-router.get('/health', async (req,res)=>{
+const router=require('express').Router(); const {rateLimit}=require('express-rate-limit'); const pool=require('../config/database'); const auth=require('../controllers/authController'); const dashboard=require('../controllers/dashboardController'); const client=require('../controllers/clientController'); const apiClient=require('../controllers/apiClientController'); const coverage=require('../controllers/coverageController'); const player=require('../controllers/playerController'); const roster=require('../controllers/rosterController'); const sales=require('../controllers/salesController'); const {requireAuth}=require('../middleware/auth');
+const healthLimiter=rateLimit({windowMs:60_000,limit:60,standardHeaders:'draft-8',legacyHeaders:false});
+router.get('/health',healthLimiter, async (req,res)=>{
   try {
     await pool.query('SELECT 1');
     res.status(200).json({

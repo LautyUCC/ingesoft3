@@ -19,10 +19,10 @@ No se versionan DSN de backend ni credenciales de lectura. El DSN del navegador 
 Dependabot crea PRs de versión y seguridad; CodeQL busca patrones de vulnerabilidad sin ejecutar tests; push protection compara patrones de secrets; Sentry recibe eventos y spans; un monitor externo consulta `/health` y alerta DOWN/UP.
 
 ## 7. Tests y evidencia real
-GitHub confirma Dependabot security updates y push protection activos. El primer CodeQL default setup pasó en [run 40272141414](https://github.com/LautyUCC/ingesoft3/actions/runs/40272141414). `npm audit fix` resolvió cuatro avisos transitivos; audit posterior: cero. Los builds y 32 unitarios, 3 integración y 3 E2E pasan. **Faltan** PR de Dependabot mergeado, Sentry con error y métricas reales, DOWN/UP externo y pausa, tarjeta de Project y release `v9.0.0`.
+GitHub confirma Dependabot security updates y push protection activos. El primer CodeQL default setup pasó en [run 40272141414](https://github.com/LautyUCC/ingesoft3/actions/runs/40272141414); el escaneo del PR detectó dos alertas altas que se corrigieron, pendientes de nueva corrida. `npm audit fix` resolvió cuatro avisos transitivos; audit posterior: cero. Los builds y 33 unitarios, 3 integración y 3 E2E pasan. **Faltan** PR de Dependabot mergeado, Sentry con error y métricas reales, DOWN/UP externo y pausa, tarjeta de Project y release `v9.0.0`.
 
 ## 8. Problemas y solución
-El backend arrastraba cuatro dependencias vulnerables, incluida una crítica en `proxy-addr`. `npm audit fix` actualizó el lockfile y se repitieron los tests. El frontend de PhotoMatch es Nginx más EJS, sin bundle JS previo; se agregó esbuild sólo para instrumentación de navegador.
+El backend arrastraba cuatro dependencias vulnerables, incluida una crítica en `proxy-addr`. `npm audit fix` actualizó el lockfile y se repitieron los tests. CodeQL encontró un regex de email con backtracking y un `/health` sin límite: la validación ahora es lineal y `express-rate-limit` permite hasta 60 peticiones por minuto. El frontend de PhotoMatch es Nginx más EJS, sin bundle JS previo; se agregó esbuild sólo para instrumentación de navegador.
 
 ## 9. Preguntas del profesor
 **¿Qué no ve CodeQL?** Comportamiento real del servicio y secretos fuera del código. **¿Qué no ve el monitor?** Formularios rotos si `/health` sigue verde. **¿Qué agrega Sentry?** Error con contexto y distribución de tiempos/uso. **¿Por qué pausar UptimeRobot?** En un hosting gratuito evita consumir cuota despertando servicios; con fallback local se debe coordinar la demo.
