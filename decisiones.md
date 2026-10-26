@@ -2,9 +2,10 @@
 
 ## Enlaces de TP6 y TP7 (estado verificable al 26/10/2026)
 
-- [PR #18](https://github.com/LautyUCC/ingesoft3/pull/18): abierto; la corrida original del PR fue [40023654341](https://github.com/LautyUCC/ingesoft3/actions/runs/40023654341). Sus imágenes no se publicaron porque fue un PR.
-- [CI del PR corregido](https://github.com/LautyUCC/ingesoft3/actions/runs/40273070088): builds, tests y cobertura verdes; pasos de registry y deploy salteados. [CodeQL del PR](https://github.com/LautyUCC/ingesoft3/actions/runs/40273066679): análisis y check de seguridad verdes.
-- Paquetes GHCR con SHA, corrida nueva de `main`, URLs QA/PROD, corrida roja E2E, corrida verde aprobada y releases `v6.0.0` a `v9.0.0`: **pendientes**. No hay enlaces ni evidencias que se puedan afirmar todavía.
+- [PR #18](https://github.com/LautyUCC/ingesoft3/pull/18): integrado con autorización del propietario en `main` como `3bdfd2464031836fb1f2488e095a1db221d9f926`. La [última CI del PR](https://github.com/LautyUCC/ingesoft3/actions/runs/40273179225) y [CodeQL](https://github.com/LautyUCC/ingesoft3/actions/runs/40273176297) pasaron; publicación y deploy se saltearon por ser PR.
+- [CI de `main`, intento 2](https://github.com/LautyUCC/ingesoft3/actions/runs/40273446742/attempts/2): ambos builds y `publish` pasaron. Las imágenes [backend](https://github.com/users/LautyUCC/packages/container/package/photomatch-backend) y [frontend](https://github.com/users/LautyUCC/packages/container/package/photomatch-frontend) quedaron públicas con tag `sha-3bdfd2464031836fb1f2488e095a1db221d9f926`; `docker manifest inspect` anónimo funcionó para ambas. El primer intento de publicación había fallado con `permission_denied: write_package`; se concedió al repositorio acceso Actions `Write` en ambos paquetes.
+- En ese intento, `deploy-qa` falló antes de crear contenedores: Docker intentó guardar el `GITHUB_TOKEN` en el llavero de macOS y el runner como servicio no podía interactuar con él. La corrección pendiente de integrar elimina el login en el despliegue y usa una configuración Docker temporal para descargar anónimamente los paquetes públicos.
+- URLs QA/PROD funcionando desde la corrida, corrida roja E2E, corrida verde aprobada y releases `v6.0.0` a `v9.0.0`: **pendientes**.
 - Fallback local de la consigna: QA `http://127.0.0.1:3001`, PROD `http://127.0.0.1:3002` cuando el runner y Docker Desktop están encendidos. Son URL locales, no públicas. La disponibilidad hasta la defensa depende de mantener esta máquina encendida.
 
 ## TP1 — Git colaborativo

@@ -4,7 +4,7 @@
 
 Repositorio personal de LautyUCC para construir, de forma incremental, el sistema de entrega de la aplicación del semestre.
 
-## P2: entrega y pruebas (rama del PR #18)
+## P2: entrega y pruebas
 
 La continuación de TP6–TP9 usa el fallback local permitido por la cátedra. GitHub Actions construye ambas imágenes, exige que los dos jobs pasen y publica los archivos de imagen sin reconstruirlos. Un runner propio con etiquetas `self-hosted` y `photomatch` despliega QA en `http://127.0.0.1:3001` y PROD en `http://127.0.0.1:3002`; cada entorno tiene volumen y red PostgreSQL separados. El environment `production` exige aprobación. Docker Desktop y el runner deben estar encendidos para que el pipeline y las URLs funcionen.
 

@@ -124,8 +124,6 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_BROWSER_DSN: ${{ secrets.SENTRY_BROWSER_DSN }}
           COMMIT_SHA: ${{ github.sha }}
-          REGISTRY_USER: ${{ github.actor }}
-          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/deploy-local.sh
       - name: Smoke QA
         env:
@@ -154,8 +152,6 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_BROWSER_DSN: ${{ secrets.SENTRY_BROWSER_DSN }}
           COMMIT_SHA: ${{ github.sha }}
-          REGISTRY_USER: ${{ github.actor }}
-          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/deploy-local.sh
       - name: Smoke producción
         env:
