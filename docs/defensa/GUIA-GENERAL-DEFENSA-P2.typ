@@ -126,7 +126,7 @@
     inset: 8pt,
     radius: 4pt,
     [
-      #text(weight: "bold")[Releases Oficiales:] `v5.0.0` a `v9.0.0` (100% completas) \
+      #text(weight: "bold")[Releases Oficiales:] `v5.0.0` a `v9.0.0` (auditoría condicionada) \
       #text(weight: "bold")[Repositorio:] github.com/LautyUCC/ingesoft3 \
       #text(weight: "bold")[Tiempo Asignado:] 10 minutos
     ]
@@ -168,7 +168,7 @@ El flujo completo de ingeniería de software implementado garantiza calidad, tra
   [#text(weight: "bold")[TP6]],
   [Continuous Delivery],
   [`v6.0.0`],
-  [Pipeline desacoplado "Build Once, Deploy Many". *Gate rechazado* (CI 40277582164) y *Rollback real en 7,42 s*.],
+  [Pipeline "Build Once, Deploy Many". *Gate rechazado* (CI 40277582164). Retorno real al SHA anterior; 7,42 s solo recreación parcial, total PROD pendiente.],
 
   [#text(weight: "bold")[TP7]],
   [Contenedores y E2E],
@@ -183,17 +183,17 @@ El flujo completo de ingeniería de software implementado garantiza calidad, tra
   [#text(weight: "bold")[TP9]],
   [DevSecOps y Observabilidad],
   [`v9.0.0`],
-  [Dependabot PR #30 merged, CodeQL verde, mitigación ReDoS y DoS. *Sentry:* Error real PHOTOMATCH-BACKEND-1 -> *Issue #38* en Projects. *UptimeRobot:* Incidente 503/UP.]
+  [Dependabot PR #30 integrado y CodeQL activo; alerta HIGH #2 en login pendiente de integrar PR #41. *Sentry:* Error QA real -> Issue #38; trazas PROD. *UptimeRobot:* 503/UP.]
 )
 
 = 3. Guion Estratégico de Exposición (10 Minutos)
 
 #callout(title: "Distribución Temporal Estricta", color: rgb("#1e3a8a"))[
   - *Min 0 a 2 (TP5):* Mostrar PR #17 bloqueado en vivo. Enfatizar que la calidad es un requisito contractual bloqueante. \
-  - *Min 2 a 4 (TP6):* Mostrar el flujo "Build Once, Deploy Many", la corrida rechazada justificada y el rollback en 7,42 s. \
+  - *Min 2 a 4 (TP6):* Mostrar el flujo "Build Once, Deploy Many", el rechazo humano y la limitación de los 7,42 s parciales de recreación. \
   - *Min 4 a 6 (TP7):* Enseñar la corrida roja de CI 40283556436 donde E2E bloqueó Producción, y la posterior recuperación verde en CI 40284305415. Mostrar curl a :3001 y :3002. \
   - *Min 6 a 8 (TP8):* Ejecutar `terraform plan` (8 altas), `apply` levantando :3003, segundo `plan` mostrando 0 cambios (idempotencia) y `destroy` limpio. \
-  - *Min 8 a 10 (TP9):* Mostrar PR Dependabot, CodeQL verde, error fatal en consola Sentry, Issue #38 en GitHub Project y monitor UptimeRobot con incidente 503/UP.
+  - *Min 8 a 10 (TP9):* Mostrar PR Dependabot, CodeQL con alerta HIGH #2 y PR #41, trazas PROD/error QA en Sentry, Issue #38 y monitor UptimeRobot 503/UP.
 ]
 
 = 4. Preguntas Cruciales para la Mesa Examinadora

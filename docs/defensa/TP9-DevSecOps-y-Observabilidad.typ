@@ -197,8 +197,8 @@ Desplazar la seguridad a las etapas iniciales del ciclo de vida del software (en
 
 #callout(title: "Evidencias Auditables en GitHub y Consolas", color: rgb("#047857"))[
   1. *PR de Dependabot Integrado:* PR #30 (`pg` 8.23.0 -> 8.23.1) fusionado exitosamente en commit `43f142e` con CI verde. \
-  2. *CodeQL y Auditoría:* CodeQL en verde continuo; `npm audit` reportando 0 vulnerabilidades. \
-  3. *Sentry:* Incidente fatal PHOTOMATCH-BACKEND-1 capturado con release y entorno `qa`. Trazas visibles en Explore. \
+  2. *CodeQL y Auditoría:* análisis activo, pero alerta HIGH #2 de rate limiting en login abierta en `main`; PR #41 corrige y espera merge. `npm audit` reportó 0 vulnerabilidades de dependencias. \
+  3. *Sentry:* incidente fatal PHOTOMATCH-BACKEND-1 con entorno `qa`. Explore muestra trazas backend `prod`: GET /clients fue la más usada (6); POST /login, la más lenta por p75 (2,23 s). Frontend tiene pageloads, pero el entorno 127.0.0.1 aún mezcla QA/PROD; PR #42 lo corrige. \
   4. *GitHub Projects:* Issue #38 vinculada al tablero oficial en columna `Todo`. \
   5. *UptimeRobot:* Incidente real resuelto #372997347011072787 (DOWN 503 detectado, notificación y recuperación tras 5m 04s). \
   6. *Release Oficial:* `v9.0.0` publicada en GitHub.
@@ -233,4 +233,4 @@ Desplazar la seguridad a las etapas iniciales del ciclo de vida del software (en
 - *Shift-Left:* Dependabot, CodeQL, Push Protection y saneamiento de dependencias.
 - *Observabilidad:* Sentry (APM / Errores reales) y UptimeRobot (Disponibilidad externa).
 - *Cierre de Ciclo:* Incidente de Sentry traducido a la tarjeta #38 en GitHub Projects.
-- *Pitch de 2 minutos:* _"En el TP9 consolidamos las capas de DevSecOps y observabilidad en PhotoMatch. Implementamos Shift-Left security con Dependabot (integrando el PR #30) y CodeQL, con el cual detectamos y corregimos una vulnerabilidad de ReDoS y un riesgo de DoS en /health mediante rate limiting. En observabilidad, instrumentamos Sentry en backend y frontend capturando un error fatal real de base de datos que derivó en la tarjeta #38 en GitHub Projects. Finalmente, configuramos UptimeRobot con sondeo externo a Producción, demostrando el ciclo completo de alerta DOWN ante una caída controlada y su posterior resolución UP tras 5 minutos."_
+- *Pitch de 2 minutos:* _"TP9 integra Dependabot (#30), CodeQL y push protection. CodeQL analiza correctamente, pero hay una alerta HIGH abierta en login; PR #41 propone limitar intentos. Sentry capturó un error QA que originó la tarjeta #38 y mostró una tabla de trazas reales PROD; los pageloads de browser aún mezclan entornos hasta PR #42. UptimeRobot registró un DOWN 503 real y el UP tras 5 minutos; el monitor quedó pausado."_

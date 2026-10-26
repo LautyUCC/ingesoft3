@@ -68,42 +68,36 @@ Durante el primer análisis de CodeQL, la herramienta detectó dos alertas de se
 
 ### 1. Remediación Segura de Validación de Email (`backend/src/services/validationService.js`)
 ```javascript
-// Algoritmo lineal seguro contra ataques ReDoS (cero backtracking)
-function validateEmail(email) {
-  if (typeof email !== 'string' || email.length > 254) return false;
-  const atIndex = email.indexOf('@');
-  if (atIndex < 1 || atIndex !== email.lastIndexOf('@')) return false;
-  
-  const localPart = email.slice(0, atIndex);
-  const domainPart = email.slice(atIndex + 1);
-  if (localPart.length === 0 || domainPart.length === 0) return false;
-  
-  const dotIndex = domainPart.indexOf('.');
-  if (dotIndex < 1 || dotIndex === domainPart.length - 1) return false;
-  return true;
+function validEmail(value) {
+  if (!value) return true; // campo opcional en el modelo actual
+  if (typeof value !== 'string' || value.length > 254 || /\s/.test(value)) return false;
+  const at = value.indexOf('@');
+  if (at < 1 || at !== value.lastIndexOf('@')) return false;
+  const domain = value.slice(at + 1);
+  const dot = domain.lastIndexOf('.');
+  return dot > 0 && dot < domain.length - 1;
 }
 ```
 *Análisis técnico:*
-- Utiliza métodos de string con complejidad computacional $O(N)$ estricta (`indexOf`, `slice`). Incluso si un atacante envía un millón de caracteres repetidos, el tiempo de ejecución es instantáneo y acotado por la guarda inicial de 254 caracteres (RFC 5321).
+- Este es el código real de `validationService.js`: evita una regex de retroceso ambiguo, limita la longitud a 254 y usa búsquedas lineales. No afirma validar toda la gramática RFC 5321.
 
 ### 2. Protección contra DoS en Endpoint de Salud (`backend/src/routes/index.js`)
 ```javascript
-import rateLimit from 'express-rate-limit';
+const { rateLimit } = require('express-rate-limit');
 
 const healthLimiter = rateLimit({
-  windowMs: 60 * 1000, // Ventana de 1 minuto
-  max: 60,              // Máximo 60 peticiones por IP
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { status: 'error', message: 'Demasiadas solicitudes a /health' }
+  windowMs: 60_000,
+  limit: 60,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false
 });
 
 router.get('/health', healthLimiter, async (req, res) => {
   try {
-    await db.query('SELECT 1');
-    res.json({ status: 'ok', version: '1.0.0', commit: process.env.COMMIT_SHA, database: 'connected' });
+    await pool.query('SELECT 1');
+    res.status(200).json({ status: 'ok', version: process.env.APP_VERSION || '1.0.0', commit: process.env.COMMIT_SHA || 'unknown', database: 'connected' });
   } catch (err) {
-    res.status(503).json({ status: 'error', database: 'disconnected' });
+    res.status(503).json({ status: 'error', message: 'Base de datos no disponible', error: err.message });
   }
 });
 ```
@@ -125,12 +119,12 @@ router.get('/health', healthLimiter, async (req, res) => {
 1. **Evidencia de Dependabot:**
    - [PR #30](https://github.com/LautyUCC/ingesoft3/pull/30) generado automáticamente para actualizar `pg` de 8.23.0 a 8.23.1. CI verde, aprobado y fusionado exitosamente a `main` en commit `43f142e`.
 2. **Evidencia de CodeQL y Seguridad de Repositorio:**
-   - Análisis de CodeQL en verde continuo (CI Runs 40273066679 y posteriores). Cero alertas abiertas de seguridad.
+   - CodeQL default setup termina sus análisis, pero la [alerta HIGH #2](https://github.com/LautyUCC/ingesoft3/security/code-scanning/2) `js/missing-rate-limiting` sigue abierta en `POST /login` de `main`. El [PR #41](https://github.com/LautyUCC/ingesoft3/pull/41) añade un límite de 20 intentos por IP cada cinco minutos y una prueba HTTP 429; CI/CodeQL del PR pasaron. Hasta integrarlo y reanalizar `main`, no afirmar “cero alertas”. `npm audit` sí informó 0 vulnerabilidades de dependencias al corte.
    - Secret Scanning y Push Protection activos y confirmados por la API de GitHub.
 3. **Evidencia de Sentry:**
    - Proyectos `photomatch-backend` y `photomatch-frontend` configurados.
    - Incidente real capturado: [PHOTOMATCH-BACKEND-1](https://lauty-vallino.sentry.io/issues/7812452027/) (`terminating connection due to administrator command`), etiquetado con release exacto y entorno `qa`.
-   - Transacciones y métricas de Explore Traces registradas en la consola de Sentry.
+   - [Explore Traces](https://lauty-vallino.sentry.io/explore/traces/) mostró en `prod`, ventana de 14 días agrupada por transacción, que `GET /clients` fue la más usada en la muestra (6 eventos; p75 32,51 ms) y `POST /login` la más lenta por p75 (4 eventos; 2,23 s). El proyecto browser mostró 129 pageloads, pero su entorno era `127.0.0.1` y no distingue QA/PROD; el [PR #42](https://github.com/LautyUCC/ingesoft3/pull/42) corrige esa etiqueta, aún sin desplegar. El error real documentado arriba ocurrió en QA, no PROD.
 4. **Evidencia de Gestión de Incidentes en GitHub Projects:**
    - [Issue #38](https://github.com/LautyUCC/ingesoft3/issues/38) creada a partir del error de base de datos e integrada al [GitHub Project PhotoMatch](https://github.com/users/LautyUCC/projects/1) en la columna `Todo`.
 5. **Evidencia de UptimeRobot:**
