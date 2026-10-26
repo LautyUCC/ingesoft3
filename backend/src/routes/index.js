@@ -1,5 +1,6 @@
 const router=require('express').Router(); const {rateLimit}=require('express-rate-limit'); const pool=require('../config/database'); const auth=require('../controllers/authController'); const dashboard=require('../controllers/dashboardController'); const client=require('../controllers/clientController'); const apiClient=require('../controllers/apiClientController'); const coverage=require('../controllers/coverageController'); const player=require('../controllers/playerController'); const roster=require('../controllers/rosterController'); const sales=require('../controllers/salesController'); const {requireAuth}=require('../middleware/auth');
 const healthLimiter=rateLimit({windowMs:60_000,limit:60,standardHeaders:'draft-8',legacyHeaders:false});
+const loginLimiter=rateLimit({windowMs:5*60_000,limit:20,standardHeaders:'draft-8',legacyHeaders:false});
 router.get('/health',healthLimiter, async (req,res)=>{
   try {
     await pool.query('SELECT 1');
@@ -25,7 +26,7 @@ router.get('/telemetry-config.js',(req,res)=>{
     `window.PHOTOMATCH_COMMIT_SHA=${JSON.stringify(process.env.COMMIT_SHA || 'unknown')};`
   );
 });
-router.get('/login',auth.showLogin); router.post('/login',auth.login); router.post('/logout',auth.logout);
+router.get('/login',auth.showLogin); router.post('/login',loginLimiter,auth.login); router.post('/logout',auth.logout);
 router.use(requireAuth); router.get('/',dashboard.show);
 router.get('/api/clients',apiClient.list); router.post('/api/clients',apiClient.create); router.get('/api/clients/:id',apiClient.show); router.put('/api/clients/:id',apiClient.update); router.delete('/api/clients/:id',apiClient.remove);
 router.get('/clients',client.list); router.get('/clients/new',client.newForm); router.post('/clients',client.create); router.get('/clients/:id/edit',client.editForm); router.put('/clients/:id',client.update); router.delete('/clients/:id',client.remove);
