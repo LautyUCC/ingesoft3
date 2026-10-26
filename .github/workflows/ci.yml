@@ -30,7 +30,7 @@ jobs:
           name: backend-coverage-report
           path: backend/coverage/
           if-no-files-found: ignore
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - name: Verificar imagen de backend
         uses: docker/build-push-action@v6
         with:
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - name: Construir etapa de tests del frontend
         uses: docker/build-push-action@v6
         with:
