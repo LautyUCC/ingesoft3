@@ -21,6 +21,7 @@ router.get('/telemetry-config.js',(req,res)=>{
   res.set('Cache-Control','no-store');
   res.type('application/javascript').send(
     `window.PHOTOMATCH_SENTRY_DSN=${JSON.stringify(process.env.SENTRY_BROWSER_DSN || '')};`+
+    `window.PHOTOMATCH_DEPLOY_ENV=${JSON.stringify(process.env.DEPLOY_ENV || 'development')};`+
     `window.PHOTOMATCH_COMMIT_SHA=${JSON.stringify(process.env.COMMIT_SHA || 'unknown')};`
   );
 });

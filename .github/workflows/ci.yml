@@ -53,6 +53,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
+      - name: Construir etapa de tests del frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          target: test
+          load: true
+          push: false
+          tags: frontend-test:ci
+          cache-from: type=gha,scope=frontend-test
+          cache-to: type=gha,mode=max,scope=frontend-test
+      - name: Tests y umbral de cobertura del frontend
+        run: |
+          mkdir -p frontend-coverage
+          docker run --rm -e COVERAGE_DIR=/salida \
+            -v "${{ github.workspace }}/frontend-coverage:/salida" frontend-test:ci
+      - name: Resumen de cobertura del frontend
+        run: |
+          test -f frontend-coverage/coverage-summary.json
+          node -e "const t=require('./frontend-coverage/coverage-summary.json').total; if(!t.lines.total) process.exit(1); console.log('### Cobertura frontend\\n| Métrica | Porcentaje |\\n|---|---:|'); for(const k of ['lines','branches','functions','statements']) console.log('| '+k+' | '+t[k].pct+'% |')" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage-report
+          path: frontend-coverage/
+          if-no-files-found: ignore
       - name: Verificar imagen de frontend
         uses: docker/build-push-action@v6
         with:
