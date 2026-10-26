@@ -15,11 +15,16 @@ case "$COMMIT_SHA" in *[!0-9a-f]*|'') echo 'SHA inválido' >&2; exit 1 ;; esac
 export BACKEND_IMAGE="ghcr.io/lautyucc/photomatch-backend:sha-$COMMIT_SHA"
 export FRONTEND_IMAGE="ghcr.io/lautyucc/photomatch-frontend:sha-$COMMIT_SHA"
 
+if [[ -z "${DOCKER_HOST:-}" ]]; then
+  docker_host="$(docker context inspect --format '{{.Endpoints.docker.Host}}')"
+  export DOCKER_HOST="$docker_host"
+fi
+
 docker_config_dir="$(mktemp -d)"
 trap 'rm -rf "$docker_config_dir"' EXIT
 printf '{"auths":{}}\n' > "$docker_config_dir/config.json"
 export DOCKER_CONFIG="$docker_config_dir"
 
 echo "Desplegando $DEPLOY_ENV desde $BACKEND_IMAGE y $FRONTEND_IMAGE"
-docker compose -p "photomatch-$DEPLOY_ENV" -f deploy/compose.yml pull
-docker compose -p "photomatch-$DEPLOY_ENV" -f deploy/compose.yml up -d --wait --no-build
+docker-compose -p "photomatch-$DEPLOY_ENV" -f deploy/compose.yml pull
+docker-compose -p "photomatch-$DEPLOY_ENV" -f deploy/compose.yml up -d --wait --no-build
