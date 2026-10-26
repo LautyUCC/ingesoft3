@@ -124,8 +124,6 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_BROWSER_DSN: ${{ secrets.SENTRY_BROWSER_DSN }}
           COMMIT_SHA: ${{ github.sha }}
-          REGISTRY_USER: ${{ github.actor }}
-          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/deploy-local.sh
       - name: Smoke QA
         env:
@@ -154,8 +152,6 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_BROWSER_DSN: ${{ secrets.SENTRY_BROWSER_DSN }}
           COMMIT_SHA: ${{ github.sha }}
-          REGISTRY_USER: ${{ github.actor }}
-          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/deploy-local.sh
       - name: Smoke producción
         env:
@@ -173,8 +169,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
         working-directory: frontend
       - name: Integración contra QA y PostgreSQL real
@@ -201,8 +195,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
         working-directory: frontend
       - run: npx playwright install chromium

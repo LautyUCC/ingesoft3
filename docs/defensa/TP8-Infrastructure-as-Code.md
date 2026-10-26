@@ -13,13 +13,13 @@ QA/PROD del fallback se diseñaron como proyectos Compose. No había carpeta `in
 `main.tf` declara red, volumen, tres imágenes y tres contenedores: ocho recursos. La URL PostgreSQL se deriva de `docker_container.db.name`; `BACKEND_URL` se deriva de `docker_container.backend.name`. Las imágenes backend/frontend entran como variables para usar los tags `sha-<commit>` publicados. Las claves llegan por `TF_VAR_*` sensibles. El puerto 3003 no toca QA 3001 ni PROD 3002.
 
 ## 5. Decisiones y alternativas
-Se usó el provider Docker 4.6.0 y Terraform 1.17.x, ambos fijados, para evitar cuentas de Neon/Render. El estado vive fuera del repo. No se importan ni se destruyen QA/PROD. Las imágenes locales se usaron sólo para probar el HCL antes del merge; para cerrar TP8 se repetirá con GHCR real.
+Se usó el provider Docker 4.6.0 y Terraform 1.17.x, ambos fijados, para evitar cuentas de Neon/Render. El estado vive fuera del repo. No se importan ni se destruyen QA/PROD. Las imágenes locales sirvieron para validar el HCL antes del merge; después se repitió con las imágenes públicas GHCR del SHA `3bdfd2464031836fb1f2488e095a1db221d9f926`.
 
 ## 6. Herramientas
 `terraform init` descarga provider y fija checksums; `fmt` ordena HCL; `validate` revisa esquema; `plan` muestra cambios; `apply` crea; `destroy` elimina. Docker Desktop provee daemon y el provider usa `DOCKER_HOST` del contexto actual.
 
 ## 7. Tests y evidencia real
-`init`, `fmt -check` y `validate` pasaron. Primer plan: 8 altas. Apply creó preprod; `/health` respondió con PostgreSQL. Segundo plan: sin cambios. Se ejecutó `destroy`, un segundo `apply`, otro `/health` y `destroy` final. Preprod quedó ausente. **Falta** repetir con imágenes GHCR de TP7, revisar QA/PROD y publicar `v8.0.0`.
+`init`, `fmt -check` y `validate` pasaron. Primer plan: 8 altas. Apply creó preprod; `/health` respondió con PostgreSQL. Segundo plan: sin cambios. Se ejecutó `destroy`, un segundo `apply`, otro `/health` y `destroy` final. Con ambas imágenes públicas GHCR se repitió el ciclo: plan con 8 altas, apply, `/health` HTTP 200 con el SHA esperado y DB conectada, plan sin cambios y destroy de 8 recursos. Preprod quedó ausente. **Falta** verificar la convivencia con QA/PROD cuando estos se desplieguen y publicar `v8.0.0`.
 
 ## 8. Problemas y solución
 En macOS el provider buscó `/var/run/docker.sock` y falló. `export DOCKER_HOST="$(docker context inspect --format '{{.Endpoints.docker.Host}}')"` apuntó al socket de Docker Desktop. El contenedor web devolvió 502 durante el arranque; el retry posterior pasó cuando API y DB estuvieron listas.
