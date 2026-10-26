@@ -1,6 +1,21 @@
 # Estado Real P2 — PhotoMatch
 
-> **Actualización Final 26/10/2026 — CIERRE COMPLETO TP5 a TP9.**
+## Estado vigente tras auditoría independiente — 26/10/2026
+
+**Dictamen: CONDICIONADO.** Ver [AUDITORIA-FINAL-P2.md](AUDITORIA-FINAL-P2.md). Las notas bajo este encabezado son un registro cronológico y algunas contienen pendientes o afirmaciones de cierre que fueron superados o corregidos por esta auditoría.
+
+**Actualización posterior a las 12:45 ART:** PR #41/#42 se fusionaron con autorización como `f28ff8d`/`d2ca58c`; sus pipelines pasaron publicación, QA, integración y E2E. CodeQL marca la alerta #2 como `fixed`. El rollback completo autorizado de PROD `1caea7c→99f83ef` tomó **25,306 s** hasta `/health` con DB y SHA; restaurar `1caea7c` tomó **25,278 s**, con el mismo contenedor PostgreSQL. [Rastro](docs/defensa/evidencias/rollback-prod-2026-10-26.log). El [PR #43](https://github.com/LautyUCC/ingesoft3/pull/43) contiene la documentación y sigue pendiente de integración. No se promovió un SHA nuevo a PROD y no hay acuse del formulario.
+
+- QA `690571b` y PROD `1caea7c` respondieron `/health` con PostgreSQL conectado; la diferencia es esperable porque la [corrida 40287651975](https://github.com/LautyUCC/ingesoft3/actions/runs/40287651975) espera revisión de `production`.
+- Se ejecutaron 3/3 pruebas de integración y 3/3 E2E en **cada** entorno, QA y PROD, con alta, edición, lectura, validación y limpieza. Además, el flujo de crear/ver/borrar cliente pasó por cada URL pública del frontend: **QA** https://philips-ping-nose-streaming.trycloudflare.com/ y **PROD** https://captured-screenshots-win-publicity.trycloudflare.com/. Los Quick Tunnels requieren Mac, Docker y procesos activos y pueden cambiar al reiniciar; ver [operación del fallback](docs/defensa/OPERACION-FALLBACK-LOCAL-P2.md).
+- [PR #41](https://github.com/LautyUCC/ingesoft3/pull/41) corrige la [alerta CodeQL HIGH #2](https://github.com/LautyUCC/ingesoft3/security/code-scanning/2) con límite de intentos de login y regresión HTTP 429. [PR #42](https://github.com/LautyUCC/ingesoft3/pull/42) incorpora tests/cobertura frontend y corrige la etiqueta Sentry de browser. Ambos están integrados en `main`; QA, integración y E2E pasaron, y PROD todavía ejecuta el SHA aprobado anterior.
+- Sentry Explore mostró trazas `prod` del backend y una tabla agregada por transacción: `GET /clients` fue la más usada (6, p75 32,51 ms), `POST /login` la más lenta (4, p75 2,23 s), en la muestra observada el 26/10. El proyecto frontend mostró 129 pageloads con entorno `127.0.0.1`, sin atribución QA/PROD hasta que el PR #42 se despliegue. El error real capturado es de **QA**, no de PROD.
+- Tras el despliegue QA de PR #42, [Sentry frontend filtrado por `qa`](https://lauty-vallino.sentry.io/explore/traces/?environment=qa&project=4512321087537152&statsPeriod=14d) muestra pageloads recientes. Aún falta verificar `prod` tras una promoción autorizada.
+- TP6 ya tiene una medición completa de rollback PROD y restauración, enlazada arriba. Los 7,42 s históricos siguen siendo **solo recreación**. El formulario oficial **no tiene constancia de envío**.
+
+## Registro histórico de avances
+
+> **Declaración histórica 26/10/2026 — revisada por la auditoría anterior; no usar como dictamen vigente.**
 > Se han completado, verificado y publicado todos los requerimientos contractuales y consignas oficiales de los Trabajos Prácticos 5, 6, 7, 8 y 9:
 >
 > 1. **TP5 (Testing y Calidad):** Quality Gate funcional con umbrales en `c8` (≥80% líneas, ≥70% ramas). PR #16 integrado. [PR #17](https://github.com/LautyUCC/ingesoft3/pull/17) (`demo/tp5-gate-bloqueado`) abierto y bloqueado en rojo como evidencia contractual permanente para la defensa oral del 6/11/2026. Release `v5.0.0` publicado.

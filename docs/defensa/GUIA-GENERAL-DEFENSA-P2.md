@@ -54,7 +54,7 @@ La Parte 2 de Ingeniería de Software III transforma la aplicación PhotoMatch d
 | TP | Eje Temático | Release Git | Evidencia Principal | Demostración Obligatoria para Defensa |
 |---|---|:---:|---|---|
 | **TP5** | Testing Automatizado y Quality Gates | `v5.0.0` | Cobertura `c8` (100% líneas, 72,4% ramas). PR #16 merged. | **[PR #17](https://github.com/LautyUCC/ingesoft3/pull/17) (`demo/tp5-gate-bloqueado`):** Abierto y bloqueado en rojo hasta la defensa oral. |
-| **TP6** | Continuous Delivery y Ambientes Aislados | `v6.0.0` | Pipeline desacoplado (build $\rightarrow$ publish $\rightarrow$ deploy). Fallback local en runner propio. QA (:3001) y PROD (:3002). | **Gate Rechazado:** CI Run 40277582164 con motivo auditado. **Rollback:** Recreación de contenedores en 7,42 s. |
+| **TP6** | Continuous Delivery y Ambientes Aislados | `v6.0.0` | Pipeline desacoplado (build $\rightarrow$ publish $\rightarrow$ deploy). Fallback local en runner propio. QA (:3001) y PROD (:3002). | **Gate rechazado:** CI 40277582164 con motivo. **Rollback PROD:** 25,306 s hasta salud/DB/SHA; restauración 25,278 s, DB conservada. |
 | **TP7** | Contenedores, Integración y E2E | `v7.0.0` | 3 pruebas API y 3 pruebas E2E con Playwright. Multi-stage Docker con Nginx reverse proxy. | **Gate E2E Rojo:** [PR #37](https://github.com/LautyUCC/ingesoft3/pull/37) / CI Run 40283556436 (E2E falló, PROD bloqueado). Recuperación verde en [PR #39](https://github.com/LautyUCC/ingesoft3/pull/39). |
 | **TP8** | Infraestructura como Código (Terraform) | `v8.0.0` | Módulo `infra/` con provider Docker 4.6.0. 8 recursos declarados con derivación dinámica y secrets seguros. | **Ciclo de vida en vivo:** `plan` (8 altas) $\rightarrow$ `apply` (preprod :3003 200 OK) $\rightarrow$ segundo `plan` (0 cambios, idempotente) $\rightarrow$ `destroy`. |
 | **TP9** | DevSecOps y Observabilidad en Tiempo Real | `v9.0.0` | Dependabot PR #30 merged. CodeQL verde. Mitigación ReDoS y DoS. Sentry APM. UptimeRobot. | **Sentry:** Incidente [PHOTOMATCH-BACKEND-1](https://lauty-vallino.sentry.io/issues/7812452027/) $\rightarrow$ [Issue #38](https://github.com/LautyUCC/ingesoft3/issues/38) en Project. **UptimeRobot:** [Incidente 503/UP #372997347011072787](https://dashboard.uptimerobot.com/incidents/372997347011072787). |
@@ -76,7 +76,7 @@ La Parte 2 de Ingeniería de Software III transforma la aplicación PhotoMatch d
   1. Mostrar en `.github/workflows/ci.yml` la separación entre build, publish y deploy.
   2. Explicar cómo el artefacto `.tar` viaja al job de publish para no recompilar.
   3. Enseñar la corrida rechazada (CI 40277582164) con el justificativo formal de negocio.
-  4. Mostrar el rollback medido en 7,42 segundos recreando el contenedor anterior en Docker sin pérdida de datos en el volumen de PostgreSQL.
+  4. Mostrar el [rastro del rollback PROD](evidencias/rollback-prod-2026-10-26.log): 25,306 s desde antes del pull hasta `/health` con SHA anterior y DB conectada; restauración 25,278 s. Los 7,42 s históricos eran parciales.
 
 ### Minuto 4:00 - 6:00 — TP7: Calidad Funcional y el Gate E2E Rojo
 - **Mensaje Clave:** *"Si la interfaz de usuario se rompe, el pipeline protege la producción antes de que los clientes la sufran."*
@@ -84,7 +84,7 @@ La Parte 2 de Ingeniería de Software III transforma la aplicación PhotoMatch d
   1. Explicar las 3 pruebas de integración con Playwright API (`api.spec.js`) y las 3 de navegador (`app.spec.js`).
   2. Abrir la corrida **[CI 40283556436](https://github.com/LautyUCC/ingesoft3/actions/runs/40283556436)** del PR #37: mostrar que `integracion` fue verde (API intacta), pero `e2e` falló en rojo por el formulario roto, y `deploy-prod` figura en gris (*Skipped*).
   3. Abrir la corrida **[CI 40284305415](https://github.com/LautyUCC/ingesoft3/actions/runs/40284305415)** del PR #39: mostrar la restauración verde y la promoción aprobada a Producción.
-  4. Ejecutar `curl` a `:3001` y `:3002` mostrando que ambos responden 200 OK con el commit `1caea7c`.
+  4. Ejecutar `curl` a `:3001` y `:3002`: al corte QA sirve `690571b` y PROD `1caea7c`, porque la promoción más nueva espera gate humano. Confirmar los SHA vigentes antes de la defensa.
 
 ### Minuto 6:00 - 8:00 — TP8: Infraestructura como Código con Terraform
 - **Mensaje Clave:** *"La infraestructura no se configura haciendo clics; se declara de forma versionada, idempotente y reproducible."*
@@ -97,7 +97,7 @@ La Parte 2 de Ingeniería de Software III transforma la aplicación PhotoMatch d
 ### Minuto 8:00 - 10:00 — TP9: DevSecOps y Observabilidad en Tiempo Real
 - **Mensaje Clave:** *"Seguridad Shift-Left en el código y observabilidad orientada a la acción en el tablero."*
 - **Qué Mostrar:**
-  1. Mostrar el PR #30 de Dependabot integrado y el análisis limpio de CodeQL.
+  1. Mostrar el PR #30 de Dependabot integrado, el análisis CodeQL y el PR #41 que corrigió el límite de `/login`. La alerta HIGH #2 figura `fixed` por API tras el merge; un run verde por sí solo no implica cero alertas.
   2. Explicar la remediación de ReDoS en `validationService.js` (algoritmo lineal) y rate limit en `/health`.
   3. Abrir la consola de Sentry: mostrar el error fatal real **PHOTOMATCH-BACKEND-1** (`terminating connection due to administrator command`) capturado con release exacto.
   4. Mostrar la **Issue #38** en el tablero de **GitHub Projects** derivada de ese error.
@@ -126,7 +126,7 @@ La Parte 2 de Ingeniería de Software III transforma la aplicación PhotoMatch d
 9. **¿Cómo demostraron que preproducción en Terraform convive con QA y Producción?**  
    *Respuesta:* Ejecutamos `curl` en simultáneo a los puertos 3001 (QA), 3002 (PROD) y 3003 (PREPROD), respondiendo los tres 200 OK con sus bases de datos conectadas.
 10. **¿Cómo midieron el tiempo de rollback de PhotoMatch?**  
-    *Respuesta:* Medimos el intervalo entre la orden de recreación del contenedor con el SHA anterior y la respuesta confirmada de `/health` (7,42 s de recreación Docker y 20,16 s de ciclo total en QA).
+    *Respuesta:* Con un solo reloj, desde antes del pull hasta `/health` con SHA anterior y DB conectada: 25,306 s en PROD. Restaurar el SHA aprobado tomó 25,278 s; PostgreSQL conservó el mismo contenedor. Los 7,42 s históricos eran solo recreación parcial.
 11. **¿Qué sucede si el runner local pierde Internet durante un despliegue?**  
     *Respuesta:* La instrucción `set -e` aborta el script en el paso de descarga (`docker pull`), antes de invocar `docker-compose up`. Los contenedores productivos siguen corriendo intactos con la versión previa.
 12. **¿Por qué se pausó el monitor de UptimeRobot al terminar las pruebas?**  

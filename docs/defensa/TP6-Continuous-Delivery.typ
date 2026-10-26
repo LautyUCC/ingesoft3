@@ -216,7 +216,7 @@ Al finalizar el TP5, PhotoMatch contaba con:
 
   [#text(weight: "bold")[Rollback por Recreación en Compose]],
   [Blue/Green con balanceador activo],
-  [Blue/Green duplica consumo de RAM. Recrear el contenedor toma ~7s, admisible para el SLA de PhotoMatch.]
+  [Blue/Green duplica consumo de RAM. El retorno al SHA anterior se midió en 25,306 s hasta `/health` con DB y SHA; las imágenes estaban cacheadas, así que no es un SLA.]
 )
 
 = E. Pruebas y Evidencias Reales
@@ -224,7 +224,7 @@ Al finalizar el TP5, PhotoMatch contaba con:
 #callout(title: "Evidencias Auditables en GitHub", color: rgb("#047857"))[
   1. *Gate de Producción Rechazado:* CI Run 40277582164. Motivo registrado: _"QA, integración y E2E pasan, pero se difiere la promoción hasta revisar rollback y observabilidad de producción"_. Producción permaneció intacta. \
   2. *Gate de Producción Aprobado:* CI Run 40284305415. Aprobado por `LautyUCC`. Promoción exitosa a Producción en commit `1caea7c`. \
-  3. *Medición Real de Rollback:* Reversión de `99f83ef` al SHA anterior `dde81a8`. Tiempo de recreación de contenedores medido en *7,42 segundos*. En QA, el ciclo extremo a extremo con `/health` tomó *20,16 segundos*. \
+  3. *Rollback PROD medido:* `1caea7c` a `99f83ef`, *25,306 s* desde antes del pull hasta `/health` con DB y SHA; restauración *25,278 s*. Mismo contenedor PostgreSQL. Rastro en `docs/defensa/evidencias/rollback-prod-2026-10-26.log`. Los 7,42 s anteriores solo medían recreación parcial. \
   4. *Release Oficial:* `v6.0.0` publicada en GitHub con notas y tag inmutable.
 ]
 
@@ -265,4 +265,4 @@ Al finalizar el TP5, PhotoMatch contaba con:
 - *Continuous Delivery:* Automatización completa con gate de aprobación humana hacia producción.
 - *Inmutabilidad:* Imágenes etiquetadas por SHA construidas una sola vez.
 - *Aislamiento:* QA (:3001) y PROD (:3002) con redes, volúmenes y puertos disjuntos.
-- *Pitch de 2 minutos:* _"En el TP6 transformamos PhotoMatch implementando un pipeline de Continuous Delivery con principio 'Build Once, Deploy Many'. Empaquetamos imágenes Docker inmutables en GHCR, desplegamos automáticamente en QA en el puerto 3001, y protegimos Producción en el puerto 3002 con un gate de aprobación humana. Demostramos el rechazo y aprobación de gates, y medimos un tiempo de rollback de 7,42 segundos sin pérdida de datos en PostgreSQL."_
+- *Pitch de 2 minutos:* _"En TP6 construimos imágenes una sola vez, las publicamos por SHA y desplegamos QA automáticamente en Docker local. PROD requiere aprobación humana; mostramos un rechazo con motivo y una aprobación. El rollback real de PROD al SHA anterior tardó 25,306 s hasta salud HTTP con DB conectada; restaurarlo tomó 25,278 s, conservando PostgreSQL."_
