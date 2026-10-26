@@ -19,3 +19,16 @@ Thumbs.db
 # Logs
 *.log
 
+# Terraform: el estado y las variables locales contienen credenciales
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+
+# Reportes E2E locales
+playwright-report/
+test-results/
+frontend/public/js/telemetry.js
+

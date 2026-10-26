@@ -1,5 +1,12 @@
 # Decisiones técnicas
 
+## Enlaces de TP6 y TP7 (estado verificable al 26/10/2026)
+
+- [PR #18](https://github.com/LautyUCC/ingesoft3/pull/18): abierto; la corrida original del PR fue [40023654341](https://github.com/LautyUCC/ingesoft3/actions/runs/40023654341). Sus imágenes no se publicaron porque fue un PR.
+- [CI del PR corregido](https://github.com/LautyUCC/ingesoft3/actions/runs/40273070088): builds, tests y cobertura verdes; pasos de registry y deploy salteados. [CodeQL del PR](https://github.com/LautyUCC/ingesoft3/actions/runs/40273066679): análisis y check de seguridad verdes.
+- Paquetes GHCR con SHA, corrida nueva de `main`, URLs QA/PROD, corrida roja E2E, corrida verde aprobada y releases `v6.0.0` a `v9.0.0`: **pendientes**. No hay enlaces ni evidencias que se puedan afirmar todavía.
+- Fallback local de la consigna: QA `http://127.0.0.1:3001`, PROD `http://127.0.0.1:3002` cuando el runner y Docker Desktop están encendidos. Son URL locales, no públicas. La disponibilidad hasta la defensa depende de mantener esta máquina encendida.
+
 ## TP1 — Git colaborativo
 
 ### Flujo de trabajo elegido
@@ -216,3 +223,37 @@ Originalmente `authService.js` realizaba `const users = require('../repositories
 ### Uso de inteligencia artificial
 
 Se utilizó asistencia de IA para auditar las consignas de la UCC, diseñar los casos de prueba unitarios, estructurar las matrices de parametrización, configurar la integración de `c8` con GitHub Actions y elaborar el material didáctico para la defensa oral. La verificación se realizó de forma empírica y reproducible: ejecutando la suite localmente (32 tests en 87 ms), comprobando el fallo real por umbral en GitHub Actions (Run #39985482676), validando la corrida verde (Run #39985690914) y asegurando que las decisiones técnicas respondan a la arquitectura real del repositorio.
+
+## TP6 — Entrega continua con fallback local
+
+El PR #18 seguía abierto y el árbol estaba limpio al iniciar esta continuación. El problema real era que `build-backend` y `build-frontend` publicaban de forma independiente: si fallaba uno, el otro podía llegar a GHCR. Ahora los dos jobs verifican y exportan sus imágenes como archivos; `publish` tiene `needs: [build-backend, build-frontend]` y sólo hace `docker load` y `docker push` de esos archivos en un push a `main`. No hay reconstrucción tras el gate. En PR, los pasos de registry quedan salteados. Es una garantía sobre el pipeline, no sobre pushes manuales al registry. Los tags `sha-<commit>` son identificadores únicos de contenido generado por ese commit; no usamos `latest`.
+
+Elegimos el fallback local que permite la consigna porque aún no había cuentas de Neon ni Render. Un runner `photomatch-local` se registró en GitHub y el workflow despliega las imágenes GHCR en dos proyectos Compose separados. QA usa el puerto 3001 y PROD el 3002; cada proyecto tiene red, contenedores y volumen PostgreSQL propios. Los environments `qa` y `production` existen. `production` exige revisión de LautyUCC y permite la propia aprobación. Cada environment guarda sus propias claves aleatorias de base, sesión y administrador; el workflow no las imprime. La dirección del backend del frontend se configura al arrancar con `BACKEND_URL`, mientras el código EJS, CSS y proxy se incluyen en la imagen. `COMMIT_SHA` queda en la imagen backend y `/health` lo devuelve junto con el resultado de `SELECT 1`. El smoke reintenta y exige el SHA exacto para no aceptar una versión anterior.
+
+El backend ya no desactiva la verificación del certificado TLS. `DB_SSL_MODE=require` valida el certificado y el host; `disable` corresponde al PostgreSQL de red local de Compose. `SESSION_SECRET` de producción debe tener al menos 32 caracteres y no puede ser el ejemplo. La cookie usa `secure: auto` detrás de un proxy confiable. Estas decisiones permiten Render/Neon más adelante sin debilitar TLS, aunque el despliegue activo elegido es local.
+
+Implementamos Continuous Delivery: QA se despliega automáticamente tras CI e integración; PROD espera aprobación. El aprobador debe mirar cobertura, imágenes publicadas, smoke del SHA, integración, reporte E2E y cambios del PR. Rechaza si alguno no acredita el comportamiento esperado. Para producción real elegiríamos rolling con dos instancias si hubiera presupuesto y observabilidad; el fallback actual es `recreate`, con una ventana breve. Un rollback consistirá en volver a desplegar en PROD los dos tags `sha-<commit>` anteriores por el workflow o un comando controlado y medir desde el inicio del `pull` hasta `/health` con ese SHA. **Aún no hay rollback medido ni rechazo real**; sería falso asignarles tiempo o motivo.
+
+La primera validación local real incluyó `actionlint`, ShellCheck, 32 tests y cobertura, builds de ambas imágenes, Compose y `/health` con PostgreSQL conectado. Luego se agregó una prueba de email por dos alertas CodeQL: ahora son 33 tests, con 100% de líneas y 72,36% de ramas. No prueba una corrida de `main`, paquetes públicos ni un deploy del runner, que requieren integrar el PR. La disponibilidad del fallback depende de Docker Desktop y del runner encendidos durante la defensa. La IA ayudó a diseñar el pipeline y la configuración; se verificó con herramientas locales, API de GitHub y pruebas reales, y se distingue lo pendiente de lo observado.
+
+## TP7 — Integración, navegador y promoción de una imagen
+
+PhotoMatch renderiza EJS, no una SPA. Para probar operaciones con `request` sin navegador agregamos una API autenticada `/api/clients` que reutiliza el repositorio y la validación de clientes. Responde 201 en alta, 400 en datos inválidos, 404 si falta el recurso y 204 en baja. Las tres pruebas `frontend/e2e/api.spec.js` hacen alta/lectura/baja, rechazo de nombre vacío y edición con verificación. Crean nombres únicos y borran los registros creados. Se autentican contra la app y la base real de QA. Las tres `app.spec.js` usan Chromium sobre el front: alta y baja, error visible sin persistencia, y edición persistente tras recarga seguida de limpieza. No hay mocks ni saltos si el entorno no responde.
+
+El workflow encadena `deploy-qa → integracion → e2e → deploy-prod`; los reportes HTML se suben aun cuando falla una suite. La imagen que QA y PROD reciben lleva el mismo tag del commit y se publicó una sola vez. La integración distingue problemas de API/base de fallos de interfaz. El smoke sólo prueba salud y SHA; Playwright comprueba comportamiento. La prueba local real dio 3/3 integración y 3/3 E2E. Descubrió un 500 previo en `/clients/new`: el local `client` de EJS se interpretaba como opción de compilación y anulaba `include`. Se renombró a `customer` y la pantalla volvió a funcionar.
+
+**Pendiente obligatorio:** corrida de `main` con QA, una rotura real del código de la interfaz que deje integración verde y E2E roja, posterior corrección y aprobación a PROD; enlace a ambos reportes y release `v7.0.0` sobre el commit desplegado. No se presenta la ejecución local como evidencia de esas corridas. La IA ayudó con API, pruebas y diagnóstico; se contrastó con PostgreSQL y Chromium locales.
+
+## TP8 — Preprod reproducible con Terraform
+
+Se eligió el provider Docker `kreuzwerker/docker` 4.6.0, fijado en `infra/versions.tf`, con Terraform 1.17.x. `infra/` declara red, volumen, PostgreSQL, backend y frontend: ocho recursos que no importan ni alteran QA o PROD. La URL de base se deriva del nombre del contenedor de PostgreSQL; `BACKEND_URL` del nombre del backend. Las imágenes se pasan como variables para usar las etiquetas GHCR del TP7. El estado se guarda fuera del repositorio, porque contiene credenciales. Variables sensibles llegan por `TF_VAR_*`, y `.gitignore` excluye estado, `.terraform/` y tfvars; el lock file sí se versiona.
+
+Se ejecutaron `init`, `fmt -check`, `validate`, `plan` (8 altas), `apply`, `/health` con base, segundo `plan` sin cambios, `destroy`, recreación y nuevo `destroy`. El primer apply falló porque el provider buscó `/var/run/docker.sock`; en Docker Desktop de macOS se resolvió exportando `DOCKER_HOST` desde `docker context inspect`. Durante esta validación se usaron imágenes locales, porque aún no existen los tags GHCR posteriores al merge. **Pendiente:** repetir el ciclo con esas imágenes publicadas, revisar que QA/PROD sigan intactos y publicar `v8.0.0`. La IA ayudó a redactar HCL; se verificó leyendo planes y resultados reales.
+
+## TP9 — Seguridad y observabilidad
+
+Se agregó Dependabot para npm de backend, npm de frontend y GitHub Actions. En GitHub están habilitadas las actualizaciones de seguridad, secret scanning y push protection. CodeQL default setup quedó configurado y su primer análisis terminó en verde en la corrida enlazada arriba. `npm audit fix` actualizó cuatro dependencias transitivas vulnerables; el audit posterior reportó cero vulnerabilidades. Se integró `@sentry/node` antes de Express y `@sentry/browser` en un bundle servido por Nginx; sólo se inicializan cuando se configuran DSN desde el entorno. La configuración pública del navegador llega por `/telemetry-config.js`, sin incluir credenciales de lectura de Sentry en el código. El SHA identifica la release en ambas SDK.
+
+La primera corrida CodeQL del PR marcó dos alertas altas: la validación de email usaba un regex con backtracking potencialmente costoso, y `/health` consultaba la base sin límite de frecuencia. Se reemplazó la validación por operaciones lineales sobre la cadena, se agregó `express-rate-limit` a `/health` (60 solicitudes por minuto) y un test con entradas malformadas y largas. La suite volvió a superar el umbral. El nuevo escaneo de CodeQL y su check de seguridad terminaron verdes en la corrida enlazada arriba.
+
+**Pendiente obligatorio:** Dependabot debe leer `dependabot.yml` desde `main` y crear un PR que se integre en verde; cuentas/proyectos Sentry y sus DSN; evento real y tabla de uso; monitor externo con DOWN/UP y pausa; tarjeta del Project derivada de un dato observado; release `v9.0.0`. Sin esos datos no se inventan métricas ni incidente. La IA ayudó a configurar las capas; se verificaron la API de GitHub, CodeQL y los builds, pero aún falta observar producción.

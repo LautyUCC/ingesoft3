@@ -1,0 +1,16 @@
+{
+  "name": "photomatch-e2e",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/telemetry.js --bundle --minify --outfile=public/js/telemetry.js",
+    "test:integration": "playwright test e2e/api.spec.js",
+    "test:e2e": "playwright test e2e/app.spec.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  },
+  "dependencies": {
+    "@sentry/browser": "^11.9.0",
+    "esbuild": "^0.28.2"
+  }
+}

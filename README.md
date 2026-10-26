@@ -4,6 +4,16 @@
 
 Repositorio personal de LautyUCC para construir, de forma incremental, el sistema de entrega de la aplicación del semestre.
 
+## P2: entrega y pruebas (rama del PR #18)
+
+La continuación de TP6–TP9 usa el fallback local permitido por la cátedra. GitHub Actions construye ambas imágenes, exige que los dos jobs pasen y publica los archivos de imagen sin reconstruirlos. Un runner propio con etiquetas `self-hosted` y `photomatch` despliega QA en `http://127.0.0.1:3001` y PROD en `http://127.0.0.1:3002`; cada entorno tiene volumen y red PostgreSQL separados. El environment `production` exige aprobación. Docker Desktop y el runner deben estar encendidos para que el pipeline y las URLs funcionen.
+
+Para revisar las pruebas localmente: `cd backend && npm ci && npm run test:check-coverage`; `docker build -t photomatch-backend:local ./backend` y `docker build -t photomatch-frontend:local ./frontend`. Las suites Playwright viven en `frontend/e2e/` y necesitan una instancia real de PhotoMatch más `API_BASE_URL`, `E2E_BASE_URL`, `E2E_EMAIL` y `E2E_PASSWORD`; `npm ci`, `npx playwright install chromium`, `npm run test:integration` y `npm run test:e2e`. No se saltean si el entorno no responde.
+
+`infra/` declara un preprod aislado con Terraform y provider Docker. Se usa Terraform 1.17.x, `DOCKER_HOST` del contexto Docker y las variables `TF_VAR_backend_image`, `TF_VAR_frontend_image`, `TF_VAR_db_password`, `TF_VAR_session_secret` y `TF_VAR_admin_password`. El estado se configura fuera del repositorio con `terraform init -backend-config="path=$HOME/.local/share/photomatch-tfstate/preprod.tfstate"`. `terraform apply` crea preprod en `http://127.0.0.1:3003`; `terraform destroy` elimina sólo esos recursos. Para la entrega deben indicarse los dos tags `sha-<commit>` de GHCR, no imágenes locales de prueba.
+
+El estado real, los enlaces existentes y las evidencias que faltan están en [ESTADO-P2.md](ESTADO-P2.md) y [decisiones.md](decisiones.md). No se considera cerrado ningún TP6–TP9 hasta comprobar la corrida y release correspondientes.
+
 ## TP1 — Git colaborativo
 
 El primer trabajo práctico configura el proceso con el que los cambios ingresan al repositorio:

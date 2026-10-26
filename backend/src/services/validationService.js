@@ -2,7 +2,15 @@ const { CLIENT_TYPES, COVERAGE_STATUSES, PAYMENT_STATUSES } = require('../models
 
 function clean(value) { return typeof value === 'string' ? value.trim() : value; }
 function optional(value) { const result = clean(value); return result || null; }
-function validEmail(value) { return !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
+function validEmail(value) {
+  if (!value) return true;
+  if (typeof value !== 'string' || value.length > 254 || /\s/.test(value)) return false;
+  const at = value.indexOf('@');
+  if (at < 1 || at !== value.lastIndexOf('@')) return false;
+  const domain = value.slice(at + 1);
+  const dot = domain.lastIndexOf('.');
+  return dot > 0 && dot < domain.length - 1;
+}
 
 function validateClient(input) {
   const data = { name: clean(input.name), type: input.type, phone: optional(input.phone), email: optional(input.email), notes: optional(input.notes) };

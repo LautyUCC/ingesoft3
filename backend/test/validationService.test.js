@@ -2,6 +2,12 @@ const test=require('node:test'); const assert=require('node:assert/strict'); con
 const valid={event_name:'Talleres vs River',home_team_id:'1',away_team_id:'2',home_division_id:'1',away_division_id:'1',event_date:'2026-08-23',venue:'Kempes',client_id:'1',price:'120000',status:'Editando',payment_status:'Pendiente',photo_count:'487',delivery_date:'2026-08-25'};
 test('acepta un cliente válido y normaliza espacios',()=>{const r=validateClient({name:' Ana ','type':'jugador',email:'ana@mail.com'});assert.deepEqual(r.errors,[]);assert.equal(r.data.name,'Ana');});
 test('rechaza email inválido',()=>assert.ok(validateClient({name:'Ana',type:'jugador',email:'mal'}).errors.length));
+test('rechaza emails ambiguos o excesivamente largos sin expresión de backtracking',()=>{
+  for(const email of ['ana@@mail.com','ana@ mail.com','ana@mail','ana@.com',`ana@${'a'.repeat(300)}.com`]){
+    const result=validateClient({name:'Ana',type:'jugador',email});
+    assert.ok(result.errors.includes('El email no tiene un formato válido.'),email.slice(0,40));
+  }
+});
 test('acepta una cobertura válida',()=>assert.deepEqual(validateCoverage({...valid,home_team_name:'Talleres',away_team_name:'River'}).errors,[]));
 test('rechaza precio negativo y fotos decimales',()=>{const r=validateCoverage({...valid,price:'-1',photo_count:'2.5'});assert.equal(r.errors.length,2);});
 test('rechaza entrega anterior al evento',()=>assert.ok(validateCoverage({...valid,delivery_date:'2026-08-20'}).errors.includes('La entrega no puede ser anterior al evento.')));
