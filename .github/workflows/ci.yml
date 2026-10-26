@@ -66,7 +66,7 @@ jobs:
       - name: Tests y umbral de cobertura del frontend
         run: |
           mkdir -p frontend-coverage
-          docker run --rm -e COVERAGE_DIR=/salida \
+          docker run --rm --user "$(id -u):$(id -g)" -e COVERAGE_DIR=/salida \
             -v "${{ github.workspace }}/frontend-coverage:/salida" frontend-test:ci
       - name: Resumen de cobertura del frontend
         run: |
