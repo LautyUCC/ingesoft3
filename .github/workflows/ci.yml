@@ -24,7 +24,7 @@ jobs:
       - name: Tests y umbral de cobertura
         run: npm run test:check-coverage
         working-directory: backend
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: backend-coverage-report
@@ -41,7 +41,7 @@ jobs:
           outputs: type=docker,dest=/tmp/photomatch-backend.tar
           cache-from: type=gha,scope=backend
           cache-to: type=gha,mode=max,scope=backend
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           name: backend-image
@@ -72,7 +72,7 @@ jobs:
         run: |
           test -f frontend-coverage/coverage-summary.json
           node -e "const t=require('./frontend-coverage/coverage-summary.json').total; if(!t.lines.total) process.exit(1); console.log('### Cobertura frontend\\n| Métrica | Porcentaje |\\n|---|---:|'); for(const k of ['lines','branches','functions','statements']) console.log('| '+k+' | '+t[k].pct+'% |')" >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: frontend-coverage-report
@@ -87,7 +87,7 @@ jobs:
           outputs: type=docker,dest=/tmp/photomatch-frontend.tar
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           name: frontend-image
@@ -203,7 +203,7 @@ jobs:
           E2E_EMAIL: ${{ vars.E2E_EMAIL }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: npm run test:integration
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report-integracion
@@ -231,7 +231,7 @@ jobs:
           E2E_EMAIL: ${{ vars.E2E_EMAIL }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report-e2e
